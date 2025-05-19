@@ -1,0 +1,61 @@
+
+project_id = "cdsiyppfnffuksddfqhd"
+
+[api]
+# Habilitar quando em produção
+# enabled = true
+# port = 54321
+# schemas = ["public", "storage", "graphql_public"]
+
+[db]
+# Não usado no ambiente atual
+# port = 54322
+
+[studio]
+# Não usado no ambiente atual
+# port = 54323
+
+[inbucket]
+# Não usado no ambiente atual
+# port = 54324
+
+[storage]
+# Não usado no ambiente atual
+# port = 54325
+
+[auth]
+# Não usado no ambiente atual
+# port = 54326
+
+[analytics]
+# Não usado no ambiente atual
+# port = 54327
+
+[realtime]
+# Não usado no ambiente atual
+# port = 54328
+
+# Configuração das funções Edge
+[functions.create-checkout]
+verify_jwt = true
+import_map = "./import_map.json"
+
+[functions.verify-payment]
+verify_jwt = true
+import_map = "./import_map.json"
+
+[functions.ai-match]
+verify_jwt = true
+import_map = "./import_map.json"
+
+[functions.gpt-analyst]
+verify_jwt = true
+import_map = "./import_map.json"
+
+[functions.key-exchange]
+verify_jwt = true
+import_map = "./import_map.json"
+
+[functions.reset-password]
+verify_jwt = true
+import_map = "./import_map.json"

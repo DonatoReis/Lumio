@@ -1,0 +1,13 @@
+// Substituir:
+.neq('created_by', user.id);
+
+// Por:
+.filter('created_by', 'not.eq', user.id);
+
+// E adicionar logo após essa query:
+if (meetingsError) {
+  console.error('Erro ao consultar reuniões:', meetingsError);
+  if (meetingsError.code === '42501') {
+    console.error('Erro de permissão RLS detectado');
+  }
+}

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Crypto API Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .info-panel {
+            margin-bottom: 30px;
+            background-color: #f9f9f9;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        
+        .warning-panel {
+            background-color: #fff3cd;
+            border-left: 4px solid #856404;
+            color: #856404;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .success-panel {
+            background-color: #d4edda;
+            border-left: 4px solid #155724;
+            color: #155724;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .error-panel {
+            background-color: #f8d7da;
+            border-left: 4px solid #721c24;
+            color: #721c24;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background-color: #0069d9;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+        }
+        
+        pre {
+            background-color: #f1f1f1;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        
+        .steps {
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            margin-bottom: 10px;
+        }
+        
+        .url-display {
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .context-status {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .status-indicator.secure {
+            background-color: #28a745;
+        }
+        
+        .status-indicator.not-secure {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <h1>Web Crypto API Test</h1>
+    
+    <div class="context-status">
+        <span>Context Status:</span>
+        <div id="contextStatus">Checking...</div>
+    </div>
+    
+    <div class="info-panel">
+        <h2>About This Test</h2>
+        <p>This page tests if the Web Crypto API is available and working correctly in your browser.</p>
+        <p>The Web Crypto API requires a <strong>secure context</strong> (HTTPS) to function properly.</p>
+    </div>
+    
+    <div id="warningPanel" class="warning-panel">
+        <h3>⚠️ Important</h3>
+        <p>This test verifies the implementation of the Web Crypto API in this application.</p>
+        <p>You're currently viewing this page at <span class="url-display" id="currentUrl"></span></p>
+    </div>
+    
+    <div class="steps">
+        <h2>Test Instructions</h2>
+        <ol>
+            <li class="step">Ensure you're accessing this page via HTTPS (or localhost)</li>
+            <li class="step">Click the "Test Key Generation" button below</li>
+            <li class="step">Check the results for success or error messages</li>
+        </ol>
+    </div>
+    
+    <button id="testButton">Test Key Generation</button>
+    <p><small>This will attempt to generate an RSA key pair using the Web Crypto API</small></p>
+    
+    <div id="successPanel" class="success-panel">
+        <h3>✅ Success!</h3>
+        <p>The Web Crypto API is working correctly. Key generation was successful.</p>
+        <p>Generated keys:</p>
+        <pre id="successOutput">...</pre>
+    </div>
+    
+    <div id="errorPanel" class="error-panel">
+        <h3>❌ Error</h3>
+        <p>There was a problem using the Web Crypto API:</p>
+        <p id="errorMessage">Error details will appear here</p>
+        <h4>Troubleshooting:</h4>
+        <ul>
+            <li>Ensure you're accessing this page via HTTPS or localhost</li>
+            <li>Try using a modern browser like Chrome, Firefox, or Edge</li>
+            <li>Check that you're not in incognito/private browsing mode</li>
+            <li>If using custom certificates, make sure they're trusted by your browser</li>
+        </ul>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUrl = window.location.href;
+            const isSecureContext = window.isSecureContext;
+            const hasSubtleCrypto = window.crypto && window.crypto.subtle;
+            
+            const contextStatusEl = document.getElementById('contextStatus');
+            const currentUrlEl = document.getElementById('currentUrl');
+            const testButton = document.getElementById('testButton');
+            const successPanel = document.getElementById('successPanel');
+            const errorPanel = document.getElementById('errorPanel');
+            const errorMessage = document.getElementById('errorMessage');
+            const successOutput = document.getElementById('successOutput');
+            
+            // Display current URL
+            currentUrlEl.textContent = currentUrl;
+            
+            // Check and display secure context status
+            if (isSecureContext) {
+                contextStatusEl.innerHTML = '<span class="status-indicator secure"></span> Secure Context (✅ Web Crypto API should work)';
+            } else {
+                contextStatusEl.innerHTML = '<span class="status-indicator not-secure"></span> Not Secure Context (❌ Web Crypto API will not work)';
+                testButton.disabled = !hasSubtleCrypto;
+                
+                if (!hasSubtleCrypto) {
+                    errorPanel.style.display = 'block';
+                    errorMessage.textContent = 'Web Crypto API is not available because this page is not in a secure context (HTTPS).';
+                }
+            }
+            
+            testButton.addEventListener('click', async function() {
+                // Reset display
+                successPanel.style.display = 'none';
+                errorPanel.style.display = 'none';
+                testButton.disabled = true;
+                
+                try {
+                    // Test key generation using the Web Crypto API
+                    const keyPair = await window.crypto.subtle.generateKey(
+                        {
+                            name: "RSA-OAEP",
+                            modulusLength: 2048,
+                            publicExponent: new Uint8Array([1, 0, 1]),
+                            hash: "SHA-256",
+                        },
+                        true,
+                        ["encrypt", "decrypt"]
+                    );
+                    
+                    // Export public key to display
+                    const publicKeyJwk = await window.crypto.subtle.exportKey(
+                        "jwk",
+                        keyPair.publicKey
+                    );
+                    
+                    // Show success
+                    successPanel.style.display = 'block';
+                    successOutput.textContent = JSON.stringify(publicKeyJwk, null, 2);
+                    
+                } catch (error) {
+                    // Show error
+                    errorPanel.style.display = 'block';
+                    errorMessage.textContent = error.message || 'Unknown error occurred during key generation';
+                    console.error('Crypto test error:', error);
+                } finally {
+                    testButton.disabled = false;
+                }
+            });
+            
+            // Provide direct link to the proper HTTPS URL if we're on HTTP
+            if (window.location.protocol === 'http:' && !window.location.hostname.includes('localhost')) {
+                const httpsUrl = window.location.href.replace('http:', 'https:');
+                const warningPanel = document.getElementById('warningPanel');
+                warningPanel.innerHTML += `<p>Try accessing this page via HTTPS instead: <a href="${httpsUrl}">${httpsUrl}</a></p>`;
+            }
+        });
+    </script>
+</body>
+</html>
+

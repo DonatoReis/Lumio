@@ -1,0 +1,19 @@
+      {/* Media Upload Dialog */}
+      <Dialog open={mediaUploadModalOpen} onOpenChange={setMediaUploadModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Upload File</DialogTitle>
+            <DialogDescription>
+              Share a file in this conversation securely with end-to-end encryption.
+            </DialogDescription>
+          </DialogHeader>
+          <MediaUploader
+            conversationId={conversationId}
+            recipientId={conversation?.participants.filter(p => p.id !== user?.id)[0]?.id || ''}
+            recipientPublicKey={conversation?.participants.filter(p => p.id !== user?.id)[0]?.public_key || ''}
+            onUploadComplete={handleMediaUploadComplete}
+            onCancel={handleMediaUploadCancel}
+          />
+        </DialogContent>
+      </Dialog>
+

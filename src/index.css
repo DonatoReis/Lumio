@@ -1,0 +1,203 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 9%;
+    --foreground: 0 0% 94.5%;
+
+    --card: 0 0% 11%;
+    --card-foreground: 0 0% 94.5%;
+
+    --popover: 0 0% 11%;
+    --popover-foreground: 0 0% 94.5%;
+
+    --primary: 243 81% 56.5%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 230 70% 58.4%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 63.9%;
+
+    --accent: 28 70%, 58%;
+    --accent-foreground: 0 0% 9%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 39 83% 77%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 94.5%;
+    --sidebar-primary: 243 75% 59%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 13%;
+    --sidebar-accent-foreground: 0 0% 94.5%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 243 75% 59%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-app-background text-app-white font-sans;
+  }
+  
+  input::placeholder,
+  textarea::placeholder,
+  select::placeholder {
+    color: #f1f1f1;
+  }
+}
+
+@layer components {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-app-blue to-app-purple;
+  }
+
+  .card-hover {
+    @apply transition-all duration-500 hover:shadow-md hover:shadow-app-purple/20;
+  }
+
+  .app-button {
+    @apply bg-app-button text-app-black hover:bg-app-white transition-colors duration-300 font-medium;
+  }
+
+  .app-button-primary {
+    @apply bg-app-yellow text-app-textoBotoes hover:bg-app-yellow transition-colors duration-300 font-medium;
+   }
+
+  .sidebar-link-active {
+    @apply bg-sidebar-accent text-sidebar-accent-foreground font-medium;
+  }
+
+  .sidebar-link {
+    @apply flex items-center p-2 rounded-md hover:bg-sidebar-accent/80 transition-all duration-300 ease-in-out;
+  }
+  
+  /* Animações aprimoradas para a sidebar */
+  .sidebar-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  
+  .sidebar-animation {
+    animation: sidebar-slide 300ms ease-in-out forwards;
+  }
+  
+  .sidebar-animation-reverse {
+    animation: sidebar-slide-reverse 300ms ease-in-out forwards;
+  }
+
+  /* Estilos para o calendário */
+  .calendar-container {
+    @apply bg-app-black rounded-lg p-4 shadow-lg;
+  }
+  
+  .calendar-header {
+    @apply flex justify-between items-center mb-4;
+  }
+  
+  .calendar-view-selector {
+    @apply flex gap-2;
+  }
+  
+  .calendar-view-button {
+    @apply px-3 py-1 rounded-md transition-colors duration-200;
+  }
+  
+  .calendar-view-button.active {
+    @apply bg-app-purple text-white;
+  }
+  
+  .calendar-grid {
+    @apply grid gap-1;
+  }
+  
+  .calendar-day {
+    @apply h-24 p-1 border border-gray-800 rounded-md transition-colors duration-200 hover:bg-app-purple/10;
+  }
+  
+  .calendar-day.today {
+    @apply border-app-purple;
+  }
+  
+  .calendar-event {
+    @apply text-xs p-1 mb-1 rounded truncate bg-app-purple/20 text-white cursor-pointer hover:bg-app-purple/40 transition-colors;
+  }
+}
+
+@keyframes sidebar-slide {
+  from {
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes sidebar-slide-reverse {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+}
+
+/* Animações de swipe para elementos de lista */
+.swipe-action-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.swipe-item {
+  transition: transform 300ms ease-in-out;
+}
+
+.swipe-actions {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  display: flex;
+}
+
+/* Estilos para equipes e canais */
+.team-card {
+  @apply bg-app-black p-4 rounded-lg border border-gray-800 hover:border-app-purple/50 transition-all duration-300;
+}
+
+.channel-list {
+  @apply mt-2 space-y-1;
+}
+
+.channel-item {
+  @apply flex items-center p-2 rounded-md hover:bg-app-purple/10 transition-all duration-300;
+}
+
+.channel-item.active {
+  @apply bg-app-purple/20;
+}
+
+/* Estilos para mensagens seguras */
+.encrypted-badge {
+  @apply bg-green-600/20 text-green-400 text-xs px-2 py-0.5 rounded-full flex items-center gap-1;
+}

@@ -1,0 +1,309 @@
+--- ChatView.tsx	2023-05-14 17:01:00
++++ ChatView.tsx	2023-05-14 19:30:00
+@@ -7,7 +7,7 @@
+ import { supabase } from '@/integrations/supabase/client';
+ import { Button } from '@/components/ui/button';
+ import { SendHorizonal, Loader, ShieldCheck, Info, Camera, Mic, Paperclip, Smile, MoreVertical, Image, FileText, MapPin, 
+-Calendar as CalendarIcon, Users, AlertTriangle, BellOff, Bell, Pin, Archive, Trash2, Eraser, Circle } from 'lucide-react';
++Calendar as CalendarIcon, Users, AlertTriangle, BellOff, Bell, Pin, Archive, Trash2, Eraser, Circle, Download, File, X } from 'lucide-react';
+ import { format } from 'date-fns';
+ import { ptBR } from 'date-fns/locale';
+ import { MessageWithSender } from '@/types/supabase';
+@@ -15,6 +15,10 @@
+ import EmojiPicker from './EmojiPicker';
+ import AttachmentOptions from './AttachmentOptions';
+ import { ScrollArea } from '@/components/ui/scroll-area';
++import MediaUploader from '@/components/media/MediaUploader';
++import MediaViewer from '@/components/media/MediaViewer';
++import useMediaMessages from '@/hooks/useMediaMessages';
++import { fileTypeFromMimeType } from '@/utils/fileUtils'; // you may need to create this utility
+ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+ import { 
+   AlertDialog, 
+@@ -78,6 +82,12 @@
+   // Show attachment options dropdown state
+   const [showAttachmentOptions, setShowAttachmentOptions] = useState(false);
+ 
++  // Media states
++  const [mediaUploadModalOpen, setMediaUploadModalOpen] = useState(false);
++  const [mediaViewModalOpen, setMediaViewModalOpen] = useState(false);
++  const [selectedMediaMessage, setSelectedMediaMessage] = useState<string | null>(null);
++  const [mediaUploadType, setMediaUploadType] = useState<string>('');
++
+   // Conversations loading state
+   const [conversationsLoading, setConversationsLoading] = useState(true);
+ 
+@@ -93,6 +103,14 @@
+   // Ref for scroll container
+   const scrollContainerRef = useRef<HTMLDivElement>(null);
+ 
++  // File input ref for media uploads
++  const fileInputRef = useRef<HTMLInputElement>(null);
++
++  // Media messages hooks
++  const { isLoading: isMediaLoading, error: mediaError, sendMediaMessage, 
++          getMediaMessage, isMediaLoading: isMessageLoading, 
++          markMediaMessageAsRead, isMediaMessage, getMediaTypeIcon } = useMediaMessages();
++
+   // Fetch conversations on mount
+   useEffect(() => {
+     if (user) {
+@@ -620,14 +638,54 @@
+   };
+ 
+   const handleAttach = (type: string, file?: File) => {
++    // Hide attachment options menu
+     setShowAttachmentOptions(false);
+-    
+-    // Simulate sending attachment
+-    setTimeout(() => {
+-      toast({
+-        title: `${type === 'image' ? 'Image' : 
+-                type === 'document' ? 'Document' : 
+-                type === 'location' ? 'Location' : 
++
++    // Set the upload type
++    setMediaUploadType(type);
++
++    // Different behavior based on attachment type
++    if (type === 'image' || type === 'document' || type === 'video' || type === 'audio') {
++      // For file types, trigger file selection
++      
++      // Set accepted file types based on the selected type
++      let acceptString = '';
++      switch (type) {
++        case 'image':
++          acceptString = 'image/*';
++          break;
++        case 'video':
++          acceptString = 'video/*';
++          break;
++        case 'audio':
++          acceptString = 'audio/*';
++          break;
++        case 'document':
++          acceptString = '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt';
++          break;
++        default:
++          acceptString = '*/*';
++      }
++      
++      // Trigger file selection if we have a reference
++      if (fileInputRef.current) {
++        fileInputRef.current.accept = acceptString;
++        fileInputRef.current.click();
++      }
++    } else {
++      // Non-file attachments (location, contact, etc.) - show a toast for now
++      toast({
++        title: `${type === 'location' ? 'Location' : 
+                 type === 'calendar' ? 'Event' : 
+                 type === 'contact' ? 'Contact' : 'Sticker'} sent`,
+-        description: "File sent successfully."
++        description: "This feature is coming soon."
+       });
+-    }, 500);
++    }
++  };
++
++  // Handle file selection
++  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
++    const files = event.target.files;
++    if (!files || files.length === 0) return;
++    
++    const file = files[0];
++    
++    // Open media upload modal
++    setMediaUploadModalOpen(true);
++  };
++
++  // Handle viewing a media message
++  const handleViewMedia = async (messageId: string) => {
++    try {
++      setSelectedMediaMessage(messageId);
++      setMediaViewModalOpen(true);
++      
++      // Mark as read
++      if (currentConversation) {
++        await markMediaMessageAsRead(messageId);
++      }
++    } catch (error) {
++      console.error('Error viewing media:', error);
++      toast({
++        title: 'Error',
++        description: 'Failed to open media file',
++        variant: 'destructive'
++      });
++    }
++  };
++
++  // Handle media upload completion
++  const handleMediaUploadComplete = (metadata: any) => {
++    setMediaUploadModalOpen(false);
++    
++    // Refresh messages to show the new media message
++    if (currentConversation) {
++      getMessages(currentConversation.id);
++    }
++    
++    toast({
++      title: 'Media shared',
++      description: 'Your file has been securely shared',
++    });
++  };
++
++  // Handle media upload cancellation
++  const handleMediaUploadCancel = () => {
++    setMediaUploadModalOpen(false);
++  };
++
++  // Check if a message is a media message
++  const isMediaMessageType = (message: any): boolean => {
++    return message && 
++      message.is_encrypted === true && 
++      message.storage_path && 
++      message.type && 
++      (message.type === 'image' || 
++       message.type === 'video' || 
++       message.type === 'audio' || 
++       message.type === 'file' || 
++       message.type === 'document');
+   };
+ 
+   const handleReaction = (messageId: string, reaction: string) => {
+@@ -753,8 +811,50 @@
+         {message.is_deleted ? (
+           <div className="text-sm italic text-muted-foreground">Esta mensagem foi excluída</div>
+         ) : (
+-          <div className={`text-sm whitespace-pre-wrap mt-1 break-words ${isSender ? 'text-white' : 'text-foreground'}`}>
+-            {message.content}
++          <>
++          {isMediaMessageType(message) ? (
++            <div className="mt-1">
++              <div 
++                className={`rounded-md overflow-hidden relative cursor-pointer hover:opacity-90 transition-opacity p-2 border border-border flex items-center gap-2 ${
++                  isLoading ? 'opacity-70' : ''
++                }`}
++                onClick={() => handleViewMedia(message.id)}
++              >
++                {message.thumbnail ? (
++                  <div className="w-10 h-10 rounded overflow-hidden bg-muted flex-shrink-0">
++                    <img 
++                      src={`data:image/jpeg;base64,${message.thumbnail}`}
++                      alt="Media thumbnail"
++                      className="w-full h-full object-cover"
++                    />
++                  </div>
++                ) : (
++                  <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
++                    {message.type === 'image' && <Image className="h-5 w-5 text-primary" />}
++                    {message.type === 'video' && <Film className="h-5 w-5 text-primary" />}
++                    {message.type === 'audio' && <FileText className="h-5 w-5 text-primary" />}
++                    {message.type === 'document' && <FileText className="h-5 w-5 text-primary" />}
++                    {message.type === 'file' && <File className="h-5 w-5 text-primary" />}
++                  </div>
++                )}
++                <div className="flex-1 min-w-0">
++                  <p className="text-sm font-medium truncate">
++                    {message.content || `${message.type.charAt(0).toUpperCase() + message.type.slice(1)} file`}
++                  </p>
++                  <p className="text-xs text-muted-foreground">
++                    {isMessageLoading(message.id) 
++                      ? 'Loading...' 
++                      : message.file_size 
++                        ? `${(message.file_size / (1024 * 1024)).toFixed(2)} MB` 
++                        : 'Encrypted media'}
++                  </p>
++                </div>
++                <Button variant="ghost" size="icon" className="h-8 w-8 ml-auto flex-shrink-0">
++                  <Download className="h-4 w-4" />
++                </Button>
++              </div>
++            </div>
++          ) : (
++            <div className={`text-sm whitespace-pre-wrap mt-1 break-words ${isSender ? 'text-white' : 'text-foreground'}`}>
++              {message.content}
++            </div>
++          )}
++          </>
+           </div>
+         )}
+ 
+@@ -1002,6 +1102,13 @@
+       </form>
+       
+       {/* Main chat interface */}
++      {/* Hidden file input for media selection */}
++      <input
++        type="file"
++        ref={fileInputRef}
++        className="hidden"
++        onChange={handleFileSelect}
++      />
+       
+       {/* Deletion confirmation */}
+       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+@@ -1036,6 +1143,44 @@
+           </AlertDialogFooter>
+         </AlertDialogContent>
+       </AlertDialog>
++
++      {/* Media Upload Modal */}
++      <Dialog open={mediaUploadModalOpen} onOpenChange={setMediaUploadModalOpen}>
++        <DialogContent className="sm:max-w-[600px]">
++          <DialogHeader>
++            <DialogTitle>Share Media</DialogTitle>
++            <DialogDescription>
++              Files are end-to-end encrypted before upload for maximum privacy.
++            </DialogDescription>
++          </DialogHeader>
++          
++          {currentConversation && currentConversation.participants.length > 0 && (
++            <MediaUploader
++              conversationId={currentConversation.id}
++              recipientId={currentConversation.participants[0]?.id || ''}
++              recipientPublicKey={currentConversation.participants[0]?.public_key || ''}
++              onUploadComplete={handleMediaUploadComplete}
++              onCancel={handleMediaUploadCancel}
++              acceptedTypes={mediaUploadType === 'image' ? 'image/*' : 
++                           mediaUploadType === 'video' ? 'video/*' : 
++                           mediaUploadType === 'audio' ? 'audio/*' : 
++                           mediaUploadType === 'document' ? '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt' : 
++                           '*/*'}
++            />
++          )}
++        </DialogContent>
++      </Dialog>
++
++      {/* Media View Modal */}
++      <Dialog open={mediaViewModalOpen} onOpenChange={setMediaViewModalOpen}>
++        <DialogContent className="sm:max-w-[800px] sm:max-h-[90vh] overflow-hidden flex flex-col">
++          <DialogHeader className="flex items-center justify-between flex-row">
++            <DialogTitle>Media</DialogTitle>
++            <Button variant="ghost" size="icon" onClick={() => setMediaViewModalOpen(false)}>
++              <X className="h-4 w-4" />
++            </Button>
++          </DialogHeader>
++          
++          <div className="flex-1 overflow-auto">
++            {selectedMediaMessage && currentConversation && (
++              <MediaViewer
++                messageId={selectedMediaMessage}
++                conversationId={currentConversation.id}
++                senderId={messages.find(m => m.id === selectedMediaMessage)?.sender_id || ''}
++                senderPublicKey={
++                  currentConversation.participants.find(
++                    p => p.id === messages.find(m => m.id === selectedMediaMessage)?.sender_id
++                  )?.public_key || ''
++                }
++                autoPlay={true}
++                showControls={true}
++              />
++            )}
++          </div>
++        </DialogContent>
++      </Dialog>
+     </div>
+   );
+ }
+

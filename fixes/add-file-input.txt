@@ -1,0 +1,9 @@
+      {/* Hidden file input for attachments */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        onChange={handleFileSelect}
+        accept="*/*"
+      />
+
