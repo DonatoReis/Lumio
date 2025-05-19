@@ -1,202 +1,226 @@
-# BizConnect AI Nexus
+# Biz Connect AI Nexus 
 
-## Storage Configuration Guide
-This guide explains how to set up the necessary storage configuration for profile image uploads.
+## Visão Geral
 
-### Setting up Supabase Storage for Profile Images
+O Biz Connect AI Nexus é uma plataforma de comunicação que oferece mensagens em tempo real e compartilhamento de mídia com criptografia de ponta a ponta. Desenvolvido utilizando React, Vite, Shadcn UI e Supabase, o projeto visa garantir a segurança e a privacidade das comunicações dos usuários.
 
-There are two ways to configure the required storage bucket and policies:
+## Funcionalidades
 
-#### Option 1: Using SQL (requires admin privileges)
-Run the `scripts/storage_profile_images_setup.sql` script in the Supabase SQL Editor with admin privileges (Service Role access).
+### Mensagens em Tempo Real
 
-#### Option 2: Using the Supabase Dashboard (recommended)
-1. Log in to your Supabase dashboard
-2. Navigate to Storage > Buckets
-3. Create a new bucket named `profile_images` and set it to public
-4. Navigate to Storage > Policies 
-5. Select the `profile_images` bucket
-6. Create the following policies:
+O sistema de mensagens em tempo real foi implementado com as seguintes características:
 
-   **Policy 1: Allow public read access**
-   - Name: "profile_images_public_select"
-   - Operation: SELECT
-   - Using expression: `bucket_id = 'profile_images'`
+*   **Prevenção de Duplicação de Conversas:** Utilização de IDs determinísticos para evitar a criação de múltiplas conversas entre os mesmos participantes. O ID da conversa é gerado a partir de um hash dos IDs dos usuários participantes, garantindo que a mesma combinação de usuários sempre resulte no mesmo ID.
+    ```typescript
+    // Generates a deterministic conversation ID based on participants
+    // Sort UIDs to ensure consistent order regardless of who initiates
+    // Join with a separator
+    // Calculate a consistent hash
+    // Format as UUID-like string
+    const generateConversationId = async (userIds: string[]): Promise<string> => {
+      // Sort UIDs to ensure consistent order regardless of who initiates
+      const sortedUserIds = [...userIds].sort();
+      // Join with a separator
+      const joinedIds = sortedUserIds.join(':');
+      // Calculate a consistent hash
+      const hash = await calculateHash(joinedIds);
+      // Format as UUID-like string
+      return `${hash.substring(0, 8)}-${hash.substring(8, 12)}-${hash.substring(12, 16)}-${hash.substring(16, 20)}-${hash.substring(20, 32)}`;
+    };
+    ```
+*   **Configurações Específicas do Usuário:** A tabela `user_conversation_preferences` permite que cada usuário personalize sua experiência (soft deletion, mute, pin, archive). Essa tabela armazena as preferências de cada usuário em relação a cada conversa, permitindo que ele "delete" uma conversa sem afetar a visibilidade para outros participantes, silencie notificações, fixe conversas no topo da lista ou archive conversas antigas.
+    ```sql
+    CREATE TABLE user_conversation_preferences (
+      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+      user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+      conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+      is_muted BOOLEAN NOT NULL DEFAULT false,
+      is_pinned BOOLEAN NOT NULL DEFAULT false,
+      is_archived BOOLEAN NOT NULL DEFAULT false,
+      is_deleted BOOLEAN NOT NULL DEFAULT false,
+      messages_cleared_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+      UNIQUE(user_id, conversation_id)
+    );
+    ```
+*   **Criação de Conversas Sob Demanda:** Conversas são criadas apenas quando a primeira mensagem é enviada, evitando a criação de conversas vazias no banco de dados.
+*   **Subscriptions em Tempo Real Aprimoradas:** Canais em tempo real configurados para lidar com todos os eventos (INSERT, UPDATE, DELETE), garantindo que as atualizações nas mensagens sejam refletidas em tempo real para todos os participantes da conversa.
 
-   **Policy 2: Allow users to upload to their own folder**
-   - Name: "profile_images_auth_insert"
-   - Operation: INSERT
-   - Using expression: `bucket_id = 'profile_images' AND auth.role() = 'authenticated' AND (split_part(name, '/', 1)) = auth.uid()::text`
+### Compartilhamento de Mídia Encriptada
 
-   **Policy 3: Allow users to update their own files**
-   - Name: "profile_images_auth_update"
-   - Operation: UPDATE
-   - Using expression: `bucket_id = 'profile_images' AND auth.role() = 'authenticated' AND (split_part(name, '/', 1)) = auth.uid()::text`
+O compartilhamento de mídia é realizado com criptografia de ponta a ponta, garantindo que apenas o remetente e o destinatário tenham acesso ao conteúdo.
 
-   **Policy 4: Allow users to delete their own files**
-   - Name: "profile_images_auth_delete"
-   - Operation: DELETE
-   - Using expression: `bucket_id = 'profile_images' AND auth.role() = 'authenticated' AND (split_part(name, '/', 1)) = auth.uid()::text`
+*   **Processo de Criptografia:**
+    1.  Geração de uma chave simétrica AES-256 única para cada arquivo.
+    2.  Criptografia do arquivo localmente com a chave simétrica.
+    3.  Criptografia da chave simétrica com a chave pública do destinatário (Signal Protocol).
+    4.  Upload do arquivo criptografado e metadados para o servidor.
+    5.  Download do arquivo criptografado e metadados pelo destinatário.
+    6.  Decriptografia da chave simétrica com a chave privada do destinatário.
+    7.  Decriptografia do arquivo com a chave simétrica.
 
-### Important Notes
-- The file path format in the `AvatarUpload` component is `${user.id}/${randomString}-${timestamp}.${fileExt}`
-- Users must be authenticated for uploads to work properly
-- The bucket must be set to public for avatar images to be viewable
+*Fluxo de Dados:*
 
-
-## HTTPS Development Setup for Web Crypto API
-
-### Why HTTPS is Required
-
-The Web Crypto API requires a secure context (HTTPS) to function properly. This is a security measure implemented by browsers to protect cryptographic operations from potential attacks. In development, you'll need to set up SSL certificates to enable HTTPS for the following features:
-
-- End-to-end encrypted messaging
-- Secure file sharing
-- Key pair generation and management
-
-### Setup Instructions
-
-We've configured the application to support HTTPS in development mode. Here's how to use it:
-
-1. **Certificate Generation**
-   
-   Certificates have been generated and placed in the `certs/` folder at the project root. These include:
-   - `localhost.pem` (certificate)
-   - `localhost-key.pem` (private key)
-
-   If you need to regenerate these certificates, you can use one of the following methods:
-
-   **Using OpenSSL:**
-   ```sh
-   # Create the certs directory if it doesn't exist
-   mkdir -p certs
-   
-   # Generate self-signed certificates for localhost
-   openssl req -x509 -newkey rsa:4096 -nodes -out certs/localhost.pem -keyout certs/localhost-key.pem -days 365 -subj "/CN=localhost"
-   ```
-
-   **Using mkcert (recommended for local development):**
-   ```sh
-   # Install mkcert (https://github.com/FiloSottile/mkcert)
-   # Then run:
-   mkcert -install
-   mkcert -cert-file certs/localhost.pem -key-file certs/localhost-key.pem localhost 127.0.0.1 ::1
-   ```
-
-2. **Trusting the Certificates**
-   
-   - **macOS/Linux**: When using mkcert, certificates are automatically trusted by your system.
-   - **Windows**: You may need to manually import `localhost.pem` into your Trusted Root Certification Authorities store.
-   - **Browser-specific**: Some browsers maintain their own certificate stores and may require additional steps.
-
-3. **Starting the Application in HTTPS Mode**
-
-   The Vite configuration has been updated to use HTTPS by default. Simply start the development server as usual:
-   ```sh
-   npm run dev
-   ```
-
-   Then access the application at `https://localhost:8080`
-
-### Troubleshooting
-
-Common issues and their solutions:
-
-1. **Certificate Not Trusted Warning**
-   - In development, you can click "Advanced" and "Proceed" in most browsers
-   - For a better experience, use mkcert to install properly trusted certificates
-
-2. **Crypto Operations Failing**
-   - Ensure you're accessing the site via HTTPS (not HTTP)
-   - Check browser console for specific error messages
-   - If using Chrome, ensure you're not in Incognito mode as it may restrict certain crypto features
-
-3. **Permission Issues with Certificate Files**
-   - Ensure the certificate files have appropriate read permissions
-   - If regenerating, use `chmod 644 certs/localhost.pem certs/localhost-key.pem` to set proper permissions
-
-### Development Fallback Implementation
-
-For development convenience, the application includes fallback implementations when the Web Crypto API is not available:
-
-- In development mode (localhost or NODE_ENV=development), the app will use mock crypto implementations that simulate encryption
-- These mock implementations provide a development experience that mimics real encryption but **DO NOT provide actual security**
-- The fallbacks are automatically disabled in production environments
-- Clear console warnings will appear when the fallback is being used
-
-**⚠️ IMPORTANT: Never use the development fallback implementations in production environments. They do not provide actual cryptographic security.**
-
-# Welcome to your Lovable project
-
-## Project info
-
-**URL**: https://lovable.dev/projects/3096167e-d168-4290-9d79-8735262c4a08
-
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/3096167e-d168-4290-9d79-8735262c4a08) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+┌─────────┐         ┌───────────┐         ┌──────────┐
+│  Remetente│         │  Supabase │         │Destinatário│
+│  Cliente │         │  Backend  │         │  Cliente  │
+└────┬────┘         └─────┬─────┘         └────┬─────┘
+     │                    │                     │
+     │ Gerar              │                     │
+     │ chave simétrica    │                     │
+     │◄─────────┐         │                     │
+     │          │         │                     │
+     │ Criptografar arquivo │                     │
+     │◄─────────┐         │                     │
+     │          │         │                     │
+     │ Criptografar chave │                     │
+     │ simétrica com chave│                     │
+     │ pública do destinatário│                     │
+     │◄─────────┐         │                     │
+     │          │         │                     │
+     │ Upload criptografado │                     │
+     │ arquivo & metadados│                     │
+     │─────────────────► │                     │
+     │                    │ Armazenar em       │
+     │                    │ Supabase Storage    │
+     │                    │◄──────────┐         │
+     │                    │            │        │
+     │                    │ Notificar destinatário│
+     │                    │ via Realtime       │
+     │                    │────────────────────►│
+     │                    │                     │
+     │                    │ Download criptografado│
+     │                    │ arquivo & metadados│
+     │                    │◄────────────────────│
+     │                    │                     │
+     │                    │                     │ Decriptografar
+     │                    │                     │ chave simétrica
+     │                    │                     │◄─────────┐
+     │                    │                     │          │
+     │                    │                     │ Decriptografar arquivo
+     │                    │                     │◄─────────┐
+     │                    │                     │          │
+     │                    │                     │ Exibir mídia
+     │                    │                     │◄─────────┐
 ```
 
-**Edit a file directly in GitHub**
+*   **Componentes Técnicos:**
+    *   `MediaUploader`: Componente React para seleção, criptografia e upload de mídia.
+    *   `MediaViewer`: Componente React para download, descriptografia e exibição de mídia.
+    *   `useEncryptedMedia`: Hook para gerenciar o estado e as operações de mídia criptografada.
+    *   `useMediaMessages`: Hook para integrar com o sistema de mensagens.
+    *   `uploadMedia`: Edge Function para uploads seguros de arquivos.
+    *   `cleanupMedia`: Scheduled Edge Function para remover arquivos de mídia expirados.
+    *   Supabase Storage: Para armazenar arquivos criptografados.
+    *   Supabase Database: Para armazenar metadados.
+    *   `mediaCrypto.ts`: Utilitários para criptografia/descriptografia de mídia.
+    *   `signalProtocol.ts`: Implementação do Signal Protocol para troca de chaves.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Outras Funcionalidades
 
-**Use GitHub Codespaces**
+*   Gerenciamento de perfil
+*   Sistema de pagamento
+*   Autenticação Multifator
+*   KYC (Know Your Customer)
+*   Marketplace
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Arquitetura
 
-## What technologies are used for this project?
+O projeto utiliza uma arquitetura baseada em:
 
-This project is built with:
+*   **Frontend:** React com Vite e Shadcn UI para a interface do usuário.
+*   **Backend:** Supabase (autenticação, banco de dados PostgreSQL, armazenamento de arquivos) para gerenciar os dados e a lógica do aplicativo.
+*   **Edge Functions:** Funções executadas na borda da rede (servidores da Supabase) para tarefas específicas e de alta performance, como:
+    *   `uploadMedia`: Lidar com uploads seguros de arquivos de mídia.
+    *   `cleanupMedia`: Remover arquivos de mídia expirados, garantindo a otimização do armazenamento e a privacidade dos dados.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Estrutura do Projeto
 
-## How can I deploy this project?
+```
+biz-connect-ai-nexus-main/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   ├── hooks/
+│   ├── contexts/
+│   ├── utils/
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── ...
+├── public/
+├── supabase/
+├── package.json
+├── README.md
+├── .env
+└── ...
+```
 
-Simply open [Lovable](https://lovable.dev/projects/3096167e-d168-4290-9d79-8735262c4a08) and click on Share -> Publish.
+*   `src/`: Contém o código fonte da aplicação React.
+    *   `components/`: Componentes reutilizáveis.
+    *   `pages/`: Páginas da aplicação.
+    *   `hooks/`: Hooks personalizados.
+    *   `contexts/`: Contextos para gerenciamento de estado.
+    *   `utils/`: Funções utilitárias.
+*   `public/`: Arquivos estáticos.
+*   `supabase/`: Configuração do Supabase (schemas, policies, functions).
+*   `package.json`: Informações sobre o projeto e dependências.
+*   `.env`: Variáveis de ambiente.
 
-## Can I connect a custom domain to my Lovable project?
+## Instalação e Execução
 
-Yes, you can!
+Para executar o projeto localmente:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+1.  Clone o repositório:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
-# Lumio
+    ```bash
+    git clone https://github.com/seu-usuario/biz-connect-ai-nexus-main.git
+    ```
+2.  Navegue até o diretório do projeto:
+
+    ```bash
+    cd biz-connect-ai-nexus-main
+    ```
+3.  Instale as dependências:
+
+    ```bash
+    npm install
+    ```
+4.  Configure as variáveis de ambiente:
+
+    *   Crie um arquivo `.env` na raiz do projeto.
+    *   Copie o conteúdo do `.env.example` para o `.env` e ajuste os valores de acordo com sua configuração.
+    ```
+    VITE_SUPABASE_URL=https://<seu-projeto>.supabase.co
+    VITE_SUPABASE_FUNCTIONS_URL=https://<seu-projeto>.functions.supabase.co
+    VITE_VAPID_PUBLIC_KEY=<sua-chave-vapid-publica>
+
+    VITE_API_BASE_URL=http://localhost:3001/api
+    VITE_TURN_URL=turn:turn.myserver.com:3478
+
+    STRIP_PUBLIC_KEY=<sua-chave-publica-stripe>
+    ```
+
+5.  Execute o projeto:
+
+    ```bash
+    npm run dev
+    ```
+
+## Contribuição
+
+Para contribuir com o projeto:
+
+1.  Faça um fork do repositório.
+2.  Crie uma branch com sua feature: `git checkout -b minha-feature`
+3.  Faça commit das suas mudanças: `git commit -m 'feat: Minha nova feature'`
+4.  Faça push para a branch: `git push origin minha-feature`
+5.  Abra um pull request.
+
+## Licença
+
+[A definir]
+
+## Demonstração
+
+[Capturas de tela ou GIFs demonstrando as funcionalidades do projeto (se disponíveis).]
+
