@@ -15,7 +15,7 @@ const GlowingButton: React.FC<GlowingButtonProps> = ({ children }) => {
     >
       <span className="relative z-10">{children}</span>
       <motion.span
-        className="absolute inset-0 bg-gradient-to-r from-green-400 to-blue-500 opacity-0 hover:opacity-80 transition-opacity duration-300 z-0"
+        className="absolute inset-0 bg-gradient-to-r from-green-400 to-yellow-500 opacity-0 hover:opacity-80 transition-opacity duration-300 z-0"
         style={{ borderRadius: '0.375rem' }} // Corresponde ao rounded-md do botão
       />
     </motion.button>

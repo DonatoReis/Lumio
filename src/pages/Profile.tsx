@@ -19,6 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from '@/components/ui/input';
+import "@/style_inputs.css";
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -338,7 +339,7 @@ const ProfilePage: React.FC = () => {
                           <FormControl>
                             <Input 
                               placeholder="Seu nome" 
-                              className="bg-app-border/30" 
+                              className="bg-app-border/30 input-text-dark" 
                               {...field} 
                               value={field.value || ''}
                             />
@@ -357,7 +358,7 @@ const ProfilePage: React.FC = () => {
                           <FormControl>
                             <Input 
                               placeholder="Seu sobrenome" 
-                              className="bg-app-border/30" 
+                              className="bg-app-border/30 input-text-dark" 
                               {...field} 
                               value={field.value || ''}
                             />
@@ -377,7 +378,7 @@ const ProfilePage: React.FC = () => {
                         <FormControl>
                           <Input
                             placeholder="nome@empresa.com"
-                            className="bg-app-border/30"
+                            className="bg-app-border/30 input-text-dark"
                             {...field}
                             value={field.value || ''}
                             disabled // Email não pode ser alterado por aqui
@@ -401,7 +402,7 @@ const ProfilePage: React.FC = () => {
                           <FormControl>
                             <Input 
                               placeholder="Sua empresa" 
-                              className="bg-app-border/30" 
+                              className="bg-app-border/30 input-text-dark" 
                               {...field} 
                               value={field.value || ''}
                             />
@@ -420,7 +421,7 @@ const ProfilePage: React.FC = () => {
                           <FormControl>
                             <Input 
                               placeholder="Seu cargo" 
-                              className="bg-app-border/30" 
+                              className="bg-app-border/30 input-text-dark" 
                               {...field} 
                               value={field.value || ''}
                             />
@@ -440,7 +441,7 @@ const ProfilePage: React.FC = () => {
                         <FormControl>
                           <Input 
                             placeholder="Ex: Tecnologia, Saúde, Finanças..." 
-                            className="bg-app-border/30" 
+                            className="bg-app-border/30 input-text-dark" 
                             {...field} 
                             value={field.value || ''}
                           />
@@ -459,7 +460,7 @@ const ProfilePage: React.FC = () => {
                         <FormControl>
                           <Textarea 
                             placeholder="Um pouco sobre você ou sua empresa" 
-                            className="bg-app-border/30 h-24" 
+                            className="bg-app-border/30 h-24 input-text-dark" 
                             {...field} 
                             value={field.value || ''}
                           />

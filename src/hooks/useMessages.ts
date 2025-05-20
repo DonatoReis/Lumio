@@ -445,219 +445,188 @@ export const useMessages = (
     };
   }, [conversationId, user, handleInsert, handleUpdate, handleDelete, fetchMessages, supabase]);
 
-const sendMessage = async (content: string) => {
-    if (!conversationId || !user || !content.trim()) {
-      return false;
-    }
-    
-    try {
-      setIsSending(true);
-      console.log("[useMessages] Sending message:", {
-        conversation_id: conversationId,
-        sender_id: user.id,
-        content: content.substring(0, 20) + (content.length > 20 ? '...' : '')
-      });
+const sendMessage = async (content: string): Promise<boolean> => {
+  if (!conversationId || !user || !content.trim()) {
+    return false;
+  }
 
-      // Check if the conversation ID is a temporary local ID
-      // (starts with 'temp-conv-' which means it needs to be created in the DB)
-      const isTemporaryId = conversationId.startsWith('temp-conv-');
-      
-      // Check if the ID is already a valid UUID (for existing conversations)
-      const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(conversationId);
-      
-      // Variable to hold the actual conversation ID we'll use
-      let actualConversationId = conversationId;
-      
-      // For temporary/local conversations, we need to create a real one in the DB
-      if (isTemporaryId) {
-        console.log("[useMessages] This is a temporary conversation ID, creating real conversation");
-        
-        // Extract participant IDs from temporary ID
-        const participantIds = conversationId.replace('temp-conv-', '').split('-');
-        
-        // Generate a deterministic conversation ID based on all participants
-        const allParticipants = [...new Set([user.id, ...participantIds])];
-        const deterministicId = await generateConversationId(allParticipants);
-        console.log("[useMessages] Generated deterministic conversation ID:", deterministicId);
-        
-        // First, check if this conversation already exists
-        const { data: existingConv, error: checkError } = await supabase
-          .from('conversations')
-          .select('id')
-          .eq('id', deterministicId)
-          .maybeSingle();
-          
-        if (checkError) {
-          console.error("[useMessages] Error checking for existing conversation:", checkError);
-        }
-        
-        // If the conversation exists, use it
-        if (existingConv) {
-          console.log("[useMessages] Found existing conversation with deterministic ID");
-          actualConversationId = existingConv.id;
-        } else {
-          // Create a new conversation with the deterministic ID
-          console.log("[useMessages] Creating new conversation with deterministic ID");
-          const { data: newConversation, error: convError } = await supabase
-            .from('conversations')
-            .insert({
-              id: deterministicId,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            })
-            .select();
-            
-          if (convError || !newConversation || newConversation.length === 0) {
-            throw new Error('Failed to create new conversation: ' + (convError?.message || 'Unknown error'));
-          }
-            
-          actualConversationId = newConversation[0].id;
-          console.log("[useMessages] Created new conversation:", actualConversationId);
-          
-          // Add all participants to the conversation
-          for (const participantId of allParticipants) {
-            const { error: participantError } = await supabase
-              .from('conversation_participants')
-              .insert({
-                conversation_id: actualConversationId, 
-                user_id: participantId,
-                created_at: new Date().toISOString()
-              });
-              
-            if (participantError) {
-              console.error(`[useMessages] Error adding participant ${participantId}:`, participantError);
-            }
-          }
-        }
-        
-        // Store mapping from temporary ID to real ID
-        const mappingKey = 'conversation_id_mapping';
-        const storedMapping = localStorage.getItem(mappingKey);
-        const mapping = storedMapping ? JSON.parse(storedMapping) : {};
-        mapping[conversationId] = actualConversationId;
-        localStorage.setItem(mappingKey, JSON.stringify(mapping));
-      } else if (!isValidUUID) {
-        // For backward compatibility with non-UUID, non-temporary IDs
-        console.log("[useMessages] Converting legacy non-UUID conversation ID format");
-        
-        // Check if we have a mapping for this ID
-        const storedMapping = localStorage.getItem('conversation_id_mapping');
-        const mapping = storedMapping ? JSON.parse(storedMapping) : {};
-        
-        if (mapping[conversationId]) {
-          actualConversationId = mapping[conversationId];
-          console.log("[useMessages] Found mapped UUID:", actualConversationId);
-        } else {
-          console.error("[useMessages] Non-UUID conversation ID with no mapping found");
-          throw new Error('Invalid conversation ID format with no mapping');
-        }
-      }
-      
-      // Create a unique message ID
-      const messageId = uuidv4();
-      
-      // Send the message with a transaction-like approach to ensure consistency
-      const { data, error } = await supabase
-        .from('messages')
-        .insert({
-          id: messageId,
-          conversation_id: actualConversationId,
-          sender_id: user.id,
-          content,
-          read: false,
-          created_at: new Date().toISOString()
-        })
-        .select();
-        
-      if (error) {
-        console.error("[useMessages] Error sending message:", error);
-        throw error;
-      }
-      
-      console.log("[useMessages] Message sent successfully with ID:", messageId);
-        
-      // Update conversation last message
-      const { error: updateError } = await supabase
-        .from('conversations')
-        .update({
-          last_message: content,
-          last_message_time: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', actualConversationId);
-        
-      if (updateError) {
-        console.error("[useMessages] Error updating conversation last message:", updateError);
-        // Non-critical error, continue without throwing
-      }
+  try {
+    setIsSending(true);
+    console.log("[useMessages] Sending message:", {
+      conversation_id: conversationId,
+      sender_id: user.id,
+      content: content.substring(0, 20) + (content.length > 20 ? "..." : "")
+    });
 
-      if (data && data.length > 0) {
-        console.log("[useMessages] Adding sent message to local state");
-        
-        // Ensure the sent message adheres to the MessageWithSender type
-        const sentMessage: MessageWithSender = {
-          ...data[0],
-          read: false,
-          sender: {
-            id: user.id,
-            email: user.email || '',
-            first_name: user.user_metadata?.first_name || null,
-            last_name: user.user_metadata?.last_name || null,
+    // Detect temporary vs. existing conversation IDs
+    const isTemporaryId = conversationId.startsWith("temp-conv-");
+    const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(conversationId);
+    let actualConversationId = conversationId;
+
+    // ——— Handle temporary IDs (create or fetch real conversation) ———
+    if (isTemporaryId) {
+      console.log("[useMessages] Temporary conversation ID, creating real conversation");
+      const participantIds = conversationId.replace("temp-conv-", "").split("-");
+      const allParticipants = [...new Set([user.id, ...participantIds])];
+      const deterministicId = await generateConversationId(allParticipants);
+      actualConversationId = deterministicId;
+
+      // Check if conversation already exists
+      const { data: existingConv, error: checkError } = await supabase
+        .from("conversations")
+        .select("id")
+        .eq("id", deterministicId)
+        .maybeSingle();
+      if (checkError) console.error("[useMessages] Error checking conversation:", checkError);
+
+      if (existingConv) {
+        actualConversationId = existingConv.id;
+      } else {
+        // Create it
+        const { data: newConv, error: convError } = await supabase
+          .from("conversations")
+          .insert({
+            id: deterministicId,
+            created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
-          }
-        };
-        
-        // If we changed from a temporary ID to a real ID, we need to update our channel subscription
-        if (conversationId !== actualConversationId) {
-          console.log("[useMessages] Conversation ID changed from temporary to real, updating subscription");
-          // Store the real conversation ID for use in other components
-          if (onMessageUpdate) {
-            onMessageUpdate({
-              type: 'conversation_created',
-              message: null,
-              conversationId: actualConversationId,
-              previousId: conversationId
-            });
-          }
-          
-          // We'll let the parent component handle navigating to the new conversation ID
-          // For now, we'll add the message to our local state for immediate feedback
+          })
+          .select();
+        if (convError || !newConv?.length) {
+          throw new Error("Failed to create conversation: " + (convError?.message || ""));
         }
-        
-        // Add message to state immediately for better user experience
-        // and then let real-time handle any updates
-        setMessages(prevMessages => {
-          // Check if the message already exists (in case of duplicate sends)
-          const exists = prevMessages.some(msg => msg.id === sentMessage.id);
-          if (exists) {
-            return prevMessages;
-          }
-          return [...prevMessages, sentMessage];
-        });
-        
-        // Notify parent components about the new message
-        if (onMessageUpdate) {
-          onMessageUpdate({
-            type: 'message_insert',
-            message: sentMessage,
-            conversationId: actualConversationId
-          });
+        actualConversationId = newConv[0].id;
+
+        // Add participants
+        for (const pid of allParticipants) {
+          const { error: partErr } = await supabase
+            .from("conversation_participants")
+            .insert({
+              conversation_id: actualConversationId,
+              user_id: pid,
+              created_at: new Date().toISOString()
+            });
+          if (partErr) console.error(`[useMessages] Error adding ${pid}:`, partErr);
         }
       }
-      
-      return true;
-    } catch (error) {
-      console.error("Erro ao enviar mensagem: ", error);
-      toast({
-        variant: "destructive",
-        title: "Message not sent",
-        description: "Could not send your message. Please try again."
-      });
-      return false;
-    } finally {
-      setIsSending(false);
+
+      // Store mapping for future
+      const mapKey = "conversation_id_mapping";
+      const stored = localStorage.getItem(mapKey);
+      const map = stored ? JSON.parse(stored) : {};
+      map[conversationId] = actualConversationId;
+      localStorage.setItem(mapKey, JSON.stringify(map));
+
+    } else if (!isValidUUID) {
+      // Legacy non-UUID IDs
+      console.log("[useMessages] Legacy ID format, mapping to UUID");
+      const stored = localStorage.getItem("conversation_id_mapping");
+      const map = stored ? JSON.parse(stored) : {};
+      if (map[conversationId]) {
+        actualConversationId = map[conversationId];
+      } else {
+        throw new Error("Invalid conversation ID format with no mapping");
+      }
     }
-  };
+
+    // ——— Ensure conversation exists (for non-temporary IDs) ———
+    if (!isTemporaryId) {
+      const { data: conv, error: convError } = await supabase
+        .from("conversations")
+        .select("id")
+        .eq("id", actualConversationId)
+        .single();
+      if (convError && convError.code !== "PGRST116") throw convError;
+      if (!conv) {
+        console.log("[useMessages] Conversation not found, creating:", actualConversationId);
+        const { error: createErr } = await supabase
+          .from("conversations")
+          .insert({
+            id: actualConversationId,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+            // add required fields here if any
+          });
+        if (createErr) throw createErr;
+      }
+    }
+
+    // ——— Insert the message ———
+    const messageId = uuidv4();
+    const { data, error } = await supabase
+      .from("messages")
+      .insert({
+        id: messageId,
+        conversation_id: actualConversationId,
+        sender_id: user.id,
+        content,
+        read: false,
+        created_at: new Date().toISOString()
+      })
+      .select();
+    if (error) {
+      console.error("[useMessages] Error sending message:", error);
+      throw error;
+    }
+    console.log("[useMessages] Message sent with ID:", messageId);
+
+    // ——— Update conversation metadata ———
+    const { error: updErr } = await supabase
+      .from("conversations")
+      .update({
+        last_message: content,
+        last_message_time: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", actualConversationId);
+    if (updErr) console.error("[useMessages] Error updating conversation:", updErr);
+
+    // ——— Update local state & callbacks ———
+    if (data?.length) {
+      const sentMessage: MessageWithSender = {
+        ...data[0],
+        read: false,
+        sender: {
+          id: user.id,
+          email: user.email || "",
+          first_name: user.user_metadata?.first_name || null,
+          last_name: user.user_metadata?.last_name || null,
+          updated_at: new Date().toISOString()
+        }
+      };
+      setMessages(prev =>
+        prev.some(m => m.id === sentMessage.id) ? prev : [...prev, sentMessage]
+      );
+      if (onMessageUpdate) {
+        onMessageUpdate({
+          type: "message_insert",
+          message: sentMessage,
+          conversationId: actualConversationId
+        });
+      }
+
+      if (conversationId !== actualConversationId && onMessageUpdate) {
+        onMessageUpdate({
+          type: "conversation_created",
+          message: null,
+          conversationId: actualConversationId,
+          previousId: conversationId
+        });
+      }
+    }
+
+    return true;
+  } catch (err) {
+    console.error("Erro ao enviar mensagem:", err);
+    toast({
+      variant: "destructive",
+      title: "Message not sent",
+      description: "Could not send your message. Please try again."
+    });
+    return false;
+  } finally {
+    setIsSending(false);
+  }
+};
 
   const markAsRead = async (messageIds: string[]) => {
     if (!messageIds.length || !user) return;

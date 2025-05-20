@@ -55,7 +55,7 @@ const SecurityScore = () => {
       <div className="flex items-center">
         <div className="h-2 w-24 bg-muted rounded-full mr-2 overflow-hidden">
           <div 
-            className="h-full bg-app-purple rounded-full"
+            className="h-full bg-app-yellow rounded-full"
             style={{ width: `${securityScore}%` }}
           />
         </div>

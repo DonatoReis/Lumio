@@ -13,13 +13,13 @@ import { useToast } from '@/hooks/use-toast';
 // Tipos de arquivo com seus respectivos ícones
 const fileTypes = {
   pdf: <FileText className="text-red-500" />,
-  doc: <FileText className="text-blue-500" />,
-  docx: <FileText className="text-blue-500" />,
+  doc: <FileText className="text-yellow-500" />,
+  docx: <FileText className="text-yellow-500" />,
   xls: <FileText className="text-green-500" />,
   xlsx: <FileText className="text-green-500" />,
-  png: <FileImage className="text-purple-500" />,
-  jpg: <FileImage className="text-purple-500" />,
-  jpeg: <FileImage className="text-purple-500" />,
+  png: <FileImage className="text-yellow-500" />,
+  jpg: <FileImage className="text-yellow-500" />,
+  jpeg: <FileImage className="text-yellow-500" />,
   ppt: <FileCog className="text-orange-500" />,
   pptx: <FileCog className="text-orange-500" />,
   txt: <FileText className="text-gray-500" />,
@@ -161,7 +161,7 @@ const Files = () => {
                 <tbody>
                   {filteredFiles.length > 0 ? (
                     filteredFiles.map(file => (
-                      <tr key={file.id} className="border-b border-gray-800 hover:bg-app-purple/5">
+                      <tr key={file.id} className="border-b border-gray-800 hover:bg-app-yellow/5">
                         <td className="p-4">
                           <div className="flex items-center">
                             <div className="mr-3">
@@ -169,7 +169,7 @@ const Files = () => {
                             </div>
                             <span className="text-sm">{file.name}</span>
                             {file.shared && (
-                              <span className="ml-2 text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">
+                              <span className="ml-2 text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full">
                                 Compartilhado
                               </span>
                             )}

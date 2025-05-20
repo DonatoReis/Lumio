@@ -37,9 +37,9 @@ interface MarketplaceCardProps {
 const TypeIcon = ({ type }: { type: ItemType }) => {
   switch (type) {
     case 'service':
-      return <Briefcase className="h-5 w-5 text-blue-500" />;
+      return <Briefcase className="h-5 w-5 text-yellow-500" />;
     case 'software':
-      return <Code className="h-5 w-5 text-purple-500" />;
+      return <Code className="h-5 w-5 text-yellow-500" />;
     case 'hardware':
       return <Cpu className="h-5 w-5 text-orange-500" />;
     default:
@@ -62,7 +62,7 @@ export const MarketplaceCard: React.FC<MarketplaceCardProps> = ({ item, onBuy, l
       }}
       className="h-full"
     >
-      <Card className="overflow-hidden h-full transition-all duration-300 shadow-[0_4px_6px_rgba(0,0,0,0.4)] hover:shadow-lg hover:border-app-purple/30 flex flex-col p-4 gap-4">
+      <Card className="overflow-hidden h-full transition-all duration-300 shadow-[0_4px_6px_rgba(0,0,0,0.4)] hover:shadow-lg hover:border-app-yellow/30 flex flex-col p-4 gap-4">
         <div className="aspect-video w-full overflow-hidden bg-muted relative">
           {item.image_url ? (
             <motion.img 
@@ -150,7 +150,7 @@ export const MarketplaceCard: React.FC<MarketplaceCardProps> = ({ item, onBuy, l
         
         <CardFooter className="flex items-center justify-end border-t p-4 mt-auto">
           <div className="flex items-center">
-            <Tag className="h-4 w-4 mr-2 text-app-purple" />
+            <Tag className="h-4 w-4 mr-2 text-app-yellow" />
             <motion.span 
               className="text-lg font-bold"
               whileHover={{ scale: 1.05 }}
@@ -165,7 +165,7 @@ export const MarketplaceCard: React.FC<MarketplaceCardProps> = ({ item, onBuy, l
             <Button 
               onClick={() => onBuy(item.id)} 
               disabled={loading}
-              className="bg-app-purple hover:bg-app-purple/90"
+              className="bg-app-yellow hover:bg-app-yellow/90"
             >
               {loading ? (
                 <motion.div

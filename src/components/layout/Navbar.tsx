@@ -187,7 +187,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
             <input
               type="text"
               placeholder="Pesquisar em tudo (usuários, mensagens, canais)..."
-              className="w-full bg-muted/50 border-none rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-app-purple/50 placeholder:text-[#f1f1f1]"
+              className="w-full bg-muted/50 border-none rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-app-yellow/50 placeholder:text-[#f1f1f1]"
               onClick={openSearch}
               readOnly
             />
@@ -214,10 +214,10 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center justify-center h-8 w-8 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-app-purple/50">
+              <button className="flex items-center justify-center h-8 w-8 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-app-yellow/50">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={profile?.avatar_url || ""} />
-                  <AvatarFallback className="bg-app-purple text-app-textoBotoes">
+                  <AvatarFallback className="bg-app-yellow text-app-textoBotoes">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>

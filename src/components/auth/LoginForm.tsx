@@ -84,7 +84,7 @@ const LoginForm: React.FC = () => {
               <Label htmlFor="password">Senha</Label>
               <a 
                 href="/forgot-password" 
-                className="text-xs text-app-purple hover:text-app-blue transition-colors"
+                className="text-xs text-app-yellow hover:text-app-yellow transition-colors"
               >
                 Esqueceu a senha?
               </a>
@@ -136,7 +136,7 @@ const LoginForm: React.FC = () => {
         
         <div className="mt-6 text-center text-sm">
           <span className="text-app-white/70">Não tem uma conta? </span>
-          <a href="/register" className="text-app-purple hover:text-app-blue transition-colors font-medium">
+          <a href="/register" className="text-app-yellow hover:text-app-yellow transition-colors font-medium">
             Registre sua empresa
           </a>
         </div>

@@ -231,7 +231,7 @@ export function EnhancedRegisterForm() {
               </FormControl>
               <div className="space-y-1 leading-none">
                 <FormLabel className="flex items-center">
-                  <Shield className="w-4 h-4 mr-2 text-app-purple" />
+                  <Shield className="w-4 h-4 mr-2 text-app-yellow" />
                   Ativar verificação em duas etapas (2FA)
                 </FormLabel>
                 <FormDescription>

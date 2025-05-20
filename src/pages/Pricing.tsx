@@ -475,7 +475,7 @@ export default function Pricing() {
                   {/* "Mais Popular" badge for Pro plan */}
                   {isPro && !current && (
                     <div className="absolute top-2 right-2">
-                      <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-none px-3 py-1">
+                      <Badge className="bg-gradient-to-r from-yellow-500 to-pink-500 hover:from-yellow-600 hover:to-pink-600 text-white border-none px-3 py-1">
                         Mais Popular
                       </Badge>
                     </div>

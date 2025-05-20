@@ -39,7 +39,7 @@ const PrivacySettingsView: React.FC = () => {
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 px-4 sm:px-6">
       <div className="flex items-center space-x-2">
-        <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-app-purple" />
+        <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-app-yellow" />
         <h2 className="text-xl sm:text-2xl font-bold">Privacidade e Proteção</h2>
       </div>
       
@@ -50,7 +50,7 @@ const PrivacySettingsView: React.FC = () => {
       
       {loading && (
         <div className="flex justify-center p-4">
-          <RefreshCw className="h-6 w-6 animate-spin text-app-purple" />
+          <RefreshCw className="h-6 w-6 animate-spin text-app-yellow" />
           <span className="ml-2 text-muted-foreground">Carregando configurações...</span>
         </div>
       )}

@@ -52,15 +52,15 @@ const Index: React.FC = () => {
               <h2 className="text-lg font-semibold mb-4">Empresas Recomendadas</h2>
               <div className="space-y-4">
                 {[1, 2, 3].map((item) => (
-                  <div key={item} className="flex items-center space-x-4 p-3 bg-app-background rounded-lg hover:bg-app-purple/5 transition cursor-pointer">
-                    <div className="w-10 h-10 bg-app-purple/20 rounded-md flex items-center justify-center">
-                      <BriefcaseBusiness className="text-app-purple" size={20} />
+                  <div key={item} className="flex items-center space-x-4 p-3 bg-app-background rounded-lg hover:bg-app-yellow/5 transition cursor-pointer">
+                    <div className="w-10 h-10 bg-app-yellow/20 rounded-md flex items-center justify-center">
+                      <BriefcaseBusiness className="text-app-yellow" size={20} />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-medium">Tech Solutions SA</h3>
                       <p className="text-xs text-muted-foreground">Compatibilidade: 92% • Setor: Tecnologia</p>
                     </div>
-                    <button className="px-3 py-1 bg-app-purple text-app-textoBotoes text-xs rounded-full">
+                    <button className="px-3 py-1 bg-app-yellow text-app-textoBotoes text-xs rounded-full">
                       Conectar
                     </button>
                   </div>
@@ -73,8 +73,8 @@ const Index: React.FC = () => {
               <h2 className="text-lg font-semibold mb-4">Atividade Recente</h2>
               <div className="space-y-4">
                 <div className="flex space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-app-blue/20 flex-shrink-0 flex items-center justify-center">
-                    <MessageCircle size={14} className="text-app-blue" />
+                  <div className="w-8 h-8 rounded-full bg-app-yellow/20 flex-shrink-0 flex items-center justify-center">
+                    <MessageCircle size={14} className="text-app-yellow" />
                   </div>
                   <div>
                     <p className="text-sm">Nova mensagem de <span className="font-medium">Global Logistics</span></p>
@@ -91,8 +91,8 @@ const Index: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-app-purple/20 flex-shrink-0 flex items-center justify-center">
-                    <ShoppingBag size={14} className="text-app-purple" />
+                  <div className="w-8 h-8 rounded-full bg-app-yellow/20 flex-shrink-0 flex items-center justify-center">
+                    <ShoppingBag size={14} className="text-app-yellow" />
                   </div>
                   <div>
                     <p className="text-sm">Novo produto no marketplace: <span className="font-medium">Sistema ERP</span></p>
@@ -100,7 +100,7 @@ const Index: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <button className="mt-4 w-full py-2 text-sm text-app-purple hover:text-app-blue transition-colors">
+              <button className="mt-4 w-full py-2 text-sm text-app-yellow hover:text-app-yellow transition-colors">
                 Ver todas as atividades
               </button>
             </div>

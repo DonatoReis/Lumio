@@ -3,6 +3,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 import { debounce } from 'lodash';
 
+
 // =========== CONFIGURATION ===========
 const SUPABASE_URL = "https://cdsiyppfnffuksddfqhd.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkc2l5cHBmbmZmdWtzZGRmcWhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwMDU1MDYsImV4cCI6MjA2MjU4MTUwNn0.EidO-C8F1mg7yOVsvtDypJ8HuLCtxke9aUcDGvdtqJM";

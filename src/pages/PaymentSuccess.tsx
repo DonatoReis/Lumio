@@ -51,7 +51,7 @@ const PaymentSuccess = () => {
         <CardContent className="flex flex-col items-center py-6">
           {isPending && (
             <div className="flex flex-col items-center gap-4">
-              <Loader2 className="h-16 w-16 text-app-purple animate-spin" />
+              <Loader2 className="h-16 w-16 text-app-yellow animate-spin" />
               <p className="text-muted-foreground">Processando sua transação...</p>
             </div>
           )}

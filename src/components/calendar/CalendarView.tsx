@@ -107,7 +107,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                       onClick={() => onEventClick?.(event)}
                       className={cn(
                         "absolute left-0 right-0 px-2 py-1 rounded-sm mb-1 cursor-pointer",
-                        event.color ? `bg-${event.color}-600/20 text-${event.color}-400` : "bg-app-purple/20 text-app-purple-foreground"
+                        event.color ? `bg-${event.color}-600/20 text-${event.color}-400` : "bg-app-yellow/20 text-app-yellow-foreground"
                       )}
                       style={{ top: `${(parseISO(event.start).getMinutes() / 60) * 100}%` }}
                     >
@@ -146,7 +146,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
               </div>
               <div className={cn(
                 "w-8 h-8 rounded-full mx-auto flex items-center justify-center",
-                isSameDay(day, new Date()) && "bg-app-purple text-white"
+                isSameDay(day, new Date()) && "bg-app-yellow text-white"
               )}>
                 {format(day, 'd')}
               </div>
@@ -165,7 +165,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                 key={day.toString()} 
                 className={cn(
                   "bg-app-black/50 rounded-lg p-2 overflow-y-auto shadow-[0_4px_6px_rgba(0,0,0,0.4)]",
-                  isSameDay(day, new Date()) && "border border-app-purple"
+                  isSameDay(day, new Date()) && "border border-app-yellow"
                 )}
               >
                 {dayEvents.map(event => (
@@ -174,7 +174,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                     onClick={() => onEventClick?.(event)}
                     className={cn(
                       "px-2 py-1 rounded-sm text-sm mb-1 cursor-pointer",
-                      event.color ? `bg-${event.color}-600/20 text-${event.color}-400` : "bg-app-purple/20 text-app-purple-foreground"
+                      event.color ? `bg-${event.color}-600/20 text-${event.color}-400` : "bg-app-yellow/20 text-app-yellow-foreground"
                     )}
                   >
                     <div className="text-xs text-muted-foreground">
@@ -239,19 +239,19 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                 className={cn(
                   "min-h-[100px] p-1 rounded border border-app-border bg-app-black/30 cursor-pointer shadow-[0_4px_6px_rgba(0,0,0,0.4)]",
                   !isCurrentMonth && "opacity-50",
-                  isSameDay(day, new Date()) && "border-app-purple"
+                  isSameDay(day, new Date()) && "border-app-yellow"
                 )}
               >
                 <div className="flex justify-between items-center mb-1">
                   <span className={cn(
                     "text-sm font-medium",
-                    isSameDay(day, new Date()) && "text-app-purple"
+                    isSameDay(day, new Date()) && "text-app-yellow"
                   )}>
                     {format(day, 'd')}
                   </span>
                   
                   {dayEvents.length > 0 && (
-                    <span className="text-xs bg-app-purple text-black rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="text-xs bg-app-yellow text-black rounded-full w-5 h-5 flex items-center justify-center">
                       {dayEvents.length}
                     </span>
                   )}
@@ -267,7 +267,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                       }}
                       className={cn(
                         "px-1 py-0.5 rounded-sm text-xs truncate",
-                        event.color ? `bg-${event.color}-600/20 text-${event.color}-400` : "bg-app-purple/20 text-app-purple-foreground"
+                        event.color ? `bg-${event.color}-600/20 text-${event.color}-400` : "bg-app-yellow/20 text-app-yellow-foreground"
                       )}
                     >
                       {event.title}

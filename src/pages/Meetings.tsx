@@ -216,7 +216,7 @@ const Meetings = () => {
                           }}
                           className={`bg-app-black h-full cursor-pointer transition-all duration-500 ease-in-out ${
                             activeIndex === index 
-                              ? 'scale-105 opacity-100 z-10 shadow-[0_8px_16px_rgba(0,0,0,0.6)] border-app-purple border-2 ring ring-app-purple/30 ring-offset-1 ring-offset-black' 
+                              ? 'scale-105 opacity-100 z-10 shadow-[0_8px_16px_rgba(0,0,0,0.6)] border-app-yellow border-2 ring ring-app-yellow/30 ring-offset-1 ring-offset-black' 
                               : 'scale-90 opacity-60 z-0 shadow-[0_2px_4px_rgba(0,0,0,0.3)] border-app-border border hover:scale-95 hover:opacity-80'
                           }`}
                         >
@@ -259,7 +259,7 @@ const Meetings = () => {
                     <Button 
                       onClick={scrollPrev}
                       disabled={!canScrollPrev}
-                      className="relative left-0 right-auto translate-y-0 h-10 w-10 rounded-full transition-all duration-300 ease-in-out hover:bg-app-purple/20"
+                      className="relative left-0 right-auto translate-y-0 h-10 w-10 rounded-full transition-all duration-300 ease-in-out hover:bg-app-yellow/20"
                       variant="outline"
                       aria-label="Ver reunião anterior"
                     >
@@ -269,7 +269,7 @@ const Meetings = () => {
                     <Button
                       onClick={scrollNext}
                       disabled={!canScrollNext}
-                      className="relative right-0 left-auto translate-y-0 h-10 w-10 rounded-full transition-all duration-300 ease-in-out hover:bg-app-purple/20"
+                      className="relative right-0 left-auto translate-y-0 h-10 w-10 rounded-full transition-all duration-300 ease-in-out hover:bg-app-yellow/20"
                       variant="outline"
                       aria-label="Ver próxima reunião"
                     >
@@ -288,7 +288,7 @@ const Meetings = () => {
                         aria-current={activeIndex === index ? "true" : "false"}
                         className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                           activeIndex === index 
-                            ? 'bg-app-purple scale-125' 
+                            ? 'bg-app-yellow scale-125' 
                             : 'bg-app-border hover:bg-app-border/80'
                         }`}
                       />
@@ -331,11 +331,11 @@ const Meetings = () => {
                   <h3 className="font-medium mb-2">Chat da Reunião</h3>
                   <div className="flex-1 overflow-y-auto mb-2 space-y-2">
                     <div className="bg-app-black/30 rounded p-2">
-                      <p className="text-xs text-app-purple">João Silva</p>
+                      <p className="text-xs text-app-yellow">João Silva</p>
                       <p className="text-sm">Olá a todos!</p>
                     </div>
                     <div className="bg-app-black/30 rounded p-2">
-                      <p className="text-xs text-app-purple">Maria Oliveira</p>
+                      <p className="text-xs text-app-yellow">Maria Oliveira</p>
                       <p className="text-sm">Bom dia! Podemos começar?</p>
                     </div>
                   </div>
@@ -378,7 +378,7 @@ const Meetings = () => {
               <Button 
                 variant="outline" 
                 size="icon" 
-                className={`rounded-full w-12 h-12 ${isChatOpen ? 'bg-app-purple/20 border-app-purple/50' : ''}`}
+                className={`rounded-full w-12 h-12 ${isChatOpen ? 'bg-app-yellow/20 border-app-yellow/50' : ''}`}
                 onClick={() => setIsChatOpen(!isChatOpen)}
               >
                 <MessageSquare />

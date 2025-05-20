@@ -358,7 +358,7 @@ const EditProduct: React.FC = () => {
                 <Button 
                   onClick={handleUpdateProduct}
                   disabled={updating}
-                  className="bg-app-purple hover:bg-app-purple/90"
+                  className="bg-app-yellow hover:bg-app-yellow/90"
                 >
                   {updating ? <Loader className="h-4 w-4 animate-spin mr-2" /> : null}
                   Salvar alterações

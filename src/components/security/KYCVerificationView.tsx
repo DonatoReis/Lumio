@@ -99,7 +99,7 @@ const KYCVerificationView: React.FC = () => {
     if (currentLevel >= stepLevel) {
       return <CheckCircle className="h-5 w-5 text-green-500" />;
     } else if (currentLevel + 1 === stepLevel) {
-      return <div className="h-5 w-5 rounded-full border-2 border-app-purple" />;
+      return <div className="h-5 w-5 rounded-full border-2 border-app-yellow" />;
     } else {
       return <div className="h-5 w-5 rounded-full border-2 border-muted" />;
     }
@@ -108,7 +108,7 @@ const KYCVerificationView: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-2">
-        <Shield className="h-6 w-6 text-app-purple" />
+        <Shield className="h-6 w-6 text-app-yellow" />
         <h2 className="text-2xl font-bold">Verificação de Identidade (KYC)</h2>
       </div>
       
@@ -162,7 +162,7 @@ const KYCVerificationView: React.FC = () => {
       {status.level === 'none' && (
         <Card className="p-6 space-y-6">
           <div className="flex items-center space-x-3">
-            <User className="h-5 w-5 text-app-purple" />
+            <User className="h-5 w-5 text-app-yellow" />
             <h3 className="text-lg font-medium">Verificação Básica</h3>
           </div>
           
@@ -240,7 +240,7 @@ const KYCVerificationView: React.FC = () => {
       {status.level === 'basic' && (
         <Card className="p-6 space-y-6">
           <div className="flex items-center space-x-3">
-            <Upload className="h-5 w-5 text-app-purple" />
+            <Upload className="h-5 w-5 text-app-yellow" />
             <h3 className="text-lg font-medium">Verificação de Documentos</h3>
           </div>
           
@@ -249,7 +249,7 @@ const KYCVerificationView: React.FC = () => {
               <DocumentUploadCard
                 title="Documento de Identidade"
                 description="RG, CNH ou Passaporte"
-                icon={<CreditCard className="h-10 w-10 text-app-purple opacity-80" />}
+                icon={<CreditCard className="h-10 w-10 text-app-yellow opacity-80" />}
                 onUpload={(file) => handleDocumentUpload('identity', file)}
                 status={status.documents.find(doc => doc.type === 'identity')?.status}
                 loading={loading}
@@ -258,7 +258,7 @@ const KYCVerificationView: React.FC = () => {
               <DocumentUploadCard
                 title="Comprovante de Residência"
                 description="Conta de luz, água ou telefone"
-                icon={<MapPin className="h-10 w-10 text-app-purple opacity-80" />}
+                icon={<MapPin className="h-10 w-10 text-app-yellow opacity-80" />}
                 onUpload={(file) => handleDocumentUpload('address_proof', file)}
                 status={status.documents.find(doc => doc.type === 'address_proof')?.status}
                 loading={loading}
@@ -267,7 +267,7 @@ const KYCVerificationView: React.FC = () => {
               <DocumentUploadCard
                 title="Selfie com Documento"
                 description="Foto sua segurando o documento"
-                icon={<User className="h-10 w-10 text-app-purple opacity-80" />}
+                icon={<User className="h-10 w-10 text-app-yellow opacity-80" />}
                 onUpload={(file) => handleDocumentUpload('selfie', file)}
                 status={status.documents.find(doc => doc.type === 'selfie')?.status}
                 loading={loading}

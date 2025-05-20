@@ -17,13 +17,13 @@ type ConversationParticipant = Database['public']['Tables']['conversation_partic
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
 // Define ConversationWithParticipants
-interface ConversationWithParticipants extends ConversationRow {
+export type ConversationWithParticipants = ConversationRow & {
   participants?: Profile[];
   preferences?: ConversationPrefRow | null;
   unread_count?: number;
-  last_message?: MessageRow | null;
-  is_temporary?: boolean; // Add is_temporary property
-  deterministic_id?: string; // Add deterministic_id property
+  lastMessage?: MessageRow;
+  is_temporary?: boolean;
+  deterministic_id?: string;
 }
 const DEBUG = false;
 
@@ -114,13 +114,6 @@ function breakerReducer(state: BreakerReducerState, action: BreakerAction): Brea
     default:
       return state;
   }
-}
-
-// Define specific interfaces to replace 'any' types
-interface ConversationParticipant {
-  conversation_id: string;
-  user_id: string;
-  id?: string;
 }
 
 interface ConversationData {
@@ -938,175 +931,99 @@ export const useConversations = (): ConversationsHook => {
     }
   };
 
-  /**
-   * Creates a conversation with deterministic ID or returns existing one
-   * Important: This function doesn't actually create a conversation in the database until 
-   * the first message is sent. It returns a temporary local ID for the UI.
-   * 
-   * @param participantIds Array of participant user IDs (excluding current user)
-   * @returns A conversation ID (either existing or temporary)
-   */
-  const createConversation = async (participantIds: string[]) => {
-    try {
-      if (!user) throw new Error("User not authenticated");
-      
+/**
+ * Creates a conversation with deterministic ID or returns existing one.
+ * Agora, a conversa é criada no banco assim que o usuário cria (não só ao enviar mensagem).
+ * 
+ * @param participantIds Array of participant user IDs (excluindo o usuário atual)
+ * @returns O ID da conversa criada ou existente
+ */
+const createConversation = async (participantIds: string[]) => {
+  try {
+    if (!user) throw new Error("User not authenticated");
 
-      
-      // Make sure the current user is included in the participants for ID generation
-      const allParticipants = [...new Set([user.id, ...participantIds])];
-      
-      // First, check if a conversation already exists with these exact participants
-      // This prevents duplicate conversations between the same users
-      if (participantIds.length === 1) {
-        const otherParticipantId = participantIds[0];
-        
+    // Garante que o usuário atual está na lista para o ID determinístico
+    const allParticipants = [...new Set([user.id, ...participantIds])];
+    const deterministicId = await generateConversationId(allParticipants);
 
-        
-        // Generate the deterministic conversation ID
-        const determinisitcId = await generateConversationId(allParticipants);
+    // 1. Tenta achar uma conversa com o ID determinístico
+    const { data: existingConversation, error: conversationError } = await safeQuery(
+      () => supabase
+        .from('conversations')
+        .select('id')
+        .eq('id', deterministicId)
+        .maybeSingle(),
+      'checking for existing conversation by ID'
+    );
 
-        
-        // Check if this conversation already exists in the database
-        const { data: existingConversation, error: conversationError } = await safeQuery(
-          () => supabase
-            .from('conversations')
-            .select('id')
-            .eq('id', determinisitcId)
-            .maybeSingle(),
-            'checking for existing conversation by ID'
+    if (!conversationError && existingConversation) {
+      // Se a conversa já existe, "revive" se estiver deletada
+      const { data: userPrefs, error: prefsError } = await safeQuery<any>(
+        () => supabase
+          .from('user_conversation_preferences')
+          .select('is_deleted')
+          .eq('user_id', user.id)
+          .eq('conversation_id', (existingConversation as any).id)
+          .maybeSingle(),
+        'checking conversation preferences'
+      );
+      if (!prefsError && userPrefs && userPrefs.is_deleted) {
+        await safeQuery(() => supabase
+          .from('user_conversation_preferences')
+          .update({ is_deleted: false })
+          .eq('user_id', user.id)
+          .eq('conversation_id', (existingConversation as any).id),
+          'undeleting conversation'
         );
-        
-        if (!conversationError && existingConversation) {
-
-          // Check if it's deleted for the current user
-          const { data: userPrefs, error: prefsError } = await safeQuery<any>(
-            () => supabase
-              .from('user_conversation_preferences')
-              .select('is_deleted')
-              .eq('user_id', user.id)
-              .eq('conversation_id', (existingConversation as any).id)
-              .maybeSingle(),
-            'checking conversation preferences'
-          );
-          
-          // If deleted, undelete it
-          if (!prefsError && userPrefs && (prefsError as any).is_deleted) {
-
-            
-            await safeQuery(() => supabase
-              .from('user_conversation_preferences')
-              .update({ is_deleted: false })
-              .eq('user_id', user.id)
-              .eq('conversation_id', (existingConversation as any).id),
-              'undeleting conversation'
-            );
-          }
-          
-          // Return the existing conversation ID
-          await fetchConversations();
-          return (existingConversation as any).id;
-        }
-        
-        // If we didn't find a conversation with the deterministic ID,
-        // If we didn't find a conversation with the deterministic ID,
-        // let's do a traditional search through participants
-        // This is for backward compatibility with existing conversations
-        const { data: userConversations, error: userConvError } = await safeQuery(
-          () => supabase
-            .from('conversation_participants')
-            .select('conversation_id')
-            .eq('user_id', user.id),
-          'fetching user conversations'
-        );
-        
-        if (!userConvError && userConversations && userConversations.length > 0) {
-          // Get all conversation IDs where current user is a participant
-          const conversationIds = userConversations.map(c => c.conversation_id);
-          
-          // Find conversations where the other user is also a participant
-          const { data: sharedConversations, error: sharedConvError } = await safeQuery(
-            () => supabase
-              .from('conversation_participants')
-              .select('conversation_id')
-              .eq('user_id', otherParticipantId)
-              .in('conversation_id', conversationIds),
-            'finding shared conversations'
-          );
-          
-          if (!sharedConvError && sharedConversations && sharedConversations.length > 0) {
-            // We found existing conversations - check if any are not marked as deleted
-            for (const shared of sharedConversations) {
-              // Check if the conversation is marked as deleted for the current user
-              const { data: userPrefs, error: prefsError } = await safeQuery(
-                () => supabase
-                  .from('user_conversation_preferences')
-                  .select('is_deleted')
-                  .eq('user_id', user.id)
-                  .eq('conversation_id', shared.conversation_id)
-                  .maybeSingle(),
-                'checking user preferences'
-              );
-              
-              // If no preferences exist or conversation is not marked as deleted, we can reuse it
-              if ((!prefsError && !userPrefs) || (!prefsError && userPrefs && !userPrefs.is_deleted)) {
-
-                
-                // Refresh conversation list to ensure it's up to date
-                await fetchConversations();
-                
-                // Return the existing conversation ID
-                return shared.conversation_id;
-              }
-            }
-          }
-        }
-        
-        // No existing conversation found that's not deleted
-        // Return a temporary ID for UI purposes
-        // This will be replaced by the deterministic ID when the first message is sent
-
-        const tempId = createLocalConversationKey(allParticipants);
-        
-        // Remember the deterministic ID that will be used when the conversation is created
-        // Add a temporary conversation object to the state for UI purposes
-        const otherUser = await getProfileById(otherParticipantId);
-        if (otherUser) {
-          const tempConversation: ConversationWithParticipants = {
-            id: tempId,
-            name: null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            last_message: null,
-            last_message_time: null,
-            participants: [otherUser],
-            unread_count: 0,
-            is_temporary: true, // Flag to indicate this is not yet in the database
-            deterministic_id: determinisitcId // Store the ID that will be used when created
-          };
-          
-          // Add to local state
-          setConversations(prev => [tempConversation, ...prev]);
-        }
-        
-        return tempId;
       }
-      
-      // For multiple participants or group chats
-      // Just return a temporary ID for now
-
-      const tempId = createLocalConversationKey(allParticipants);
-      return tempId;
-    } catch (error) {
-      console.error('[useConversations] Error creating conversation:', error);
-      const errorMessage = error instanceof Error ? error.message : "Não foi possível criar a conversa";
-      toast({
-        variant: "destructive",
-        title: "Erro ao criar conversa",
-        description: errorMessage,
-      });
-      return null;
+      await fetchConversations();
+      return (existingConversation as any).id;
     }
-  };
+
+    // 2. Se não existe, cria a conversa no banco
+    const { error: convError } = await safeQuery(
+      () => supabase
+        .from('conversations')
+        .insert({
+          id: deterministicId,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+          // Outros campos se houver
+        }),
+      'creating conversation in db'
+    );
+    if (convError) throw convError;
+
+    // 3. Cria os participantes
+    for (const participantId of allParticipants) {
+      await safeQuery(
+        () => supabase
+          .from('conversation_participants')
+          .insert({
+            conversation_id: deterministicId,
+            user_id: participantId,
+            created_at: new Date().toISOString(),
+          }),
+        `adding participant ${participantId}`
+      );
+    }
+
+    // 4. Refresca a lista de conversas
+    await fetchConversations();
+
+    // 5. Retorna o ID determinístico
+    return deterministicId;
+  } catch (error) {
+    console.error('[useConversations] Error creating conversation:', error);
+    const errorMessage = error instanceof Error ? error.message : "Não foi possível criar a conversa";
+    toast({
+      variant: "destructive",
+      title: "Erro ao criar conversa",
+      description: errorMessage,
+    });
+    return null;
+  }
+};
 
   /**
    * Get a user profile by ID

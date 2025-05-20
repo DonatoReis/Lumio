@@ -155,7 +155,7 @@ const Calendar = () => {
           description: 'Discussão sobre a nova campanha',
           start: '2023-06-15T10:00',
           end: '2023-06-15T11:30',
-          color: 'purple',
+          color: 'yellow',
           isAllDay: false
         },
         {
@@ -164,7 +164,7 @@ const Calendar = () => {
           description: 'Restaurante no centro',
           start: '2023-06-16T12:30',
           end: '2023-06-16T14:00',
-          color: 'blue',
+          color: 'yellow',
           isAllDay: false
         },
         {
@@ -215,7 +215,7 @@ const Calendar = () => {
         description: `Descrição do evento ${i}`,
         start: format(randomDate, "yyyy-MM-dd'T'HH:00"),
         end: format(new Date(randomDate.getTime() + 60 * 60 * 1000), "yyyy-MM-dd'T'HH:00"),
-        color: ['purple', 'blue', 'green', 'yellow', 'red'][Math.floor(Math.random() * 5)],
+        color: ['yellow', 'yellow', 'green', 'yellow', 'red'][Math.floor(Math.random() * 5)],
         isAllDay: Math.random() > 0.8 // 20% chance de ser evento de dia inteiro
       });
     }
@@ -303,7 +303,7 @@ const Calendar = () => {
                           }}
                           className={`bg-app-black h-full transition-all duration-300 ease-in-out transform cursor-pointer ${
                             activeIndex === index 
-                              ? 'scale-105 opacity-100 z-10 shadow-[0_8px_16px_rgba(0,0,0,0.6)] border-app-purple border-2' 
+                              ? 'scale-105 opacity-100 z-10 shadow-[0_8px_16px_rgba(0,0,0,0.6)] border-app-yellow border-2' 
                               : 'scale-90 opacity-60 z-0 shadow-[0_2px_4px_rgba(0,0,0,0.3)] border-app-border border'
                           }`}
                         >
@@ -363,7 +363,7 @@ const Calendar = () => {
                         aria-current={activeIndex === index ? "true" : "false"}
                         className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                           activeIndex === index 
-                            ? 'bg-app-purple scale-125' 
+                            ? 'bg-app-yellow scale-125' 
                             : 'bg-app-border hover:bg-app-border/80'
                         }`}
                       />
@@ -406,11 +406,11 @@ const Calendar = () => {
                   <h3 className="font-medium mb-2">Chat da Reunião</h3>
                   <div className="flex-1 overflow-y-auto mb-2 space-y-2">
                     <div className="bg-app-black/30 rounded p-2">
-                      <p className="text-xs text-app-purple">João Silva</p>
+                      <p className="text-xs text-app-yellow">João Silva</p>
                       <p className="text-sm">Olá a todos!</p>
                     </div>
                     <div className="bg-app-black/30 rounded p-2">
-                      <p className="text-xs text-app-purple">Maria Oliveira</p>
+                      <p className="text-xs text-app-yellow">Maria Oliveira</p>
                       <p className="text-sm">Bom dia! Podemos começar?</p>
                     </div>
                   </div>
@@ -453,7 +453,7 @@ const Calendar = () => {
               <Button 
                 variant="outline" 
                 size="icon" 
-                className={`rounded-full w-12 h-12 ${isChatOpen ? 'bg-app-purple/20 border-app-purple/50' : ''}`}
+                className={`rounded-full w-12 h-12 ${isChatOpen ? 'bg-app-yellow/20 border-app-yellow/50' : ''}`}
                 onClick={() => setIsChatOpen(!isChatOpen)}
               >
                 <MessageSquare />

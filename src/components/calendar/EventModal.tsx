@@ -53,7 +53,7 @@ const EventModal: React.FC<EventModalProps> = ({
     description: '',
     start: format(defaultDate || new Date(), "yyyy-MM-dd'T'HH:mm"),
     end: format(defaultDate || new Date(), "yyyy-MM-dd'T'HH:mm"),
-    color: 'purple',
+    color: 'yellow',
     isAllDay: false,
   });
 

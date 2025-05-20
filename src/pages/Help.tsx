@@ -90,7 +90,7 @@ const Help = () => {
                 key={category.id}
                 className={`w-full flex items-center p-2 rounded-md transition-colors ${
                   activeCategory === category.id 
-                    ? 'bg-app-purple/20 text-app-purple' 
+                    ? 'bg-app-yellow/20 text-app-yellow' 
                     : 'hover:bg-app-black/50'
                 }`}
                 onClick={() => setActiveCategory(category.id)}
@@ -121,7 +121,7 @@ const Help = () => {
             {filteredFaqs.length > 0 ? (
               <div className="space-y-4">
                 {filteredFaqs.map((faq, index) => (
-                  <Card key={index} className="bg-app-black border-app-border hover:border-app-purple/50 transition-all duration-300">
+                  <Card key={index} className="bg-app-black border-app-border hover:border-app-yellow/50 transition-all duration-300">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-base font-medium">{faq.question}</CardTitle>
                       <CardDescription>Categoria: {categories.find(c => c.id === faq.category)?.name}</CardDescription>

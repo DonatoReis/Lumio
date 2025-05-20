@@ -263,7 +263,7 @@ const RegisterForm: React.FC = () => {
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel className="text-sm font-normal">
-                      Concordo com os <a href="/terms" className="text-app-purple hover:text-app-blue">Termos de Serviço</a> e <a href="/privacy" className="text-app-purple hover:text-app-blue">Política de Privacidade</a>
+                      Concordo com os <a href="/terms" className="text-app-yellow hover:text-app-yellow">Termos de Serviço</a> e <a href="/privacy" className="text-app-yellow hover:text-app-yellow">Política de Privacidade</a>
                     </FormLabel>
                     <FormMessage />
                   </div>
@@ -288,7 +288,7 @@ const RegisterForm: React.FC = () => {
         
         <div className="mt-6 text-center text-sm">
           <span className="text-app-white/70">Já tem uma conta? </span>
-          <a href="/login" className="text-app-purple hover:text-app-blue transition-colors font-medium">
+          <a href="/login" className="text-app-yellow hover:text-app-yellow transition-colors font-medium">
             Fazer login
           </a>
         </div>

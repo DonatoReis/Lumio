@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Cpu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 
 const DynamicTypingDescription = () => {
   // Parte fixa da frase
-  const fixedPart = 'Conecte seu negócio ao mundo com ';
+  const fixedPart = 'Potencializa conexões comerciais estratégicas com inteligência artificial avançada, garantindo segurança absoluta em cada interação. Conecte seu negócio ao mundo com ';
   
   // Parte variável - diferentes finais
   const variableEndings = ['segurança.', 'zero custos recorrentes.', 'simplicidade.'];
@@ -305,15 +306,19 @@ const WelcomeCard: React.FC = () => {
             <div>
               {/* Título sem a animação de typing */}
               <h2 className="text-lg sm:text-xl font-bold flex items-center gap-2 mb-3">
-                <WelcomeText>Bem-vindo ao Lumio</WelcomeText>
+                <WelcomeText>Bem-vindo ao Mercantia</WelcomeText>
               </h2>
               {/* Texto com efeito de digitação */}
               <DynamicTypingDescription />
               <div className="flex flex-wrap mt-4 gap-3">
-                <Button className="app-button-primary text-app-textoBotoes h-10 px-6" aria-label="Explorar Match IA">
-                    Explorar Match IA
-                    <ArrowRight size={16} className="ml-2"  />
-                  </Button>
+                <Link
+                  to="/ai-match"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 bg-[rgb(245,212,150)] text-[rgb(26,26,26)] hover:bg-[rgb(223,142,73)] h-10 px-4 py-2 app-button-primary text-app-textoBotoes px-6"
+                  aria-label="Explorar Match IA"
+                >
+                  Explorar Match IA
+                  <ArrowRight size={16} className="ml-2" />
+                </Link>
                 <Button className="bg-transparent border border-app-yellow text-white hover:bg-app-yellow transition-colors duration-300 font-medium h-10 px-6" aria-label="Tutorial Rápido">
                   Tutorial Rápido
                 </Button>

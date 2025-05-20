@@ -46,6 +46,11 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { isCompleteEmail } from '@/utils/validation';
+type UserResult = {
+  id: string;
+  email: string;
+};
+
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -55,10 +60,11 @@ const Messages: React.FC = () => {
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [showSidebar, setShowSidebar] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [newParticipantEmail, setNewParticipantEmail] = useState('');
+  const [newParticipantEmail, setNewParticipantEmail] = useState<string>('');
   const [creatingConversation, setCreatingConversation] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState(false);
-  const [searchResults, setSearchResults] = useState<{ id: string; email: string; first_name?: string; last_name?: string; }[]>([]);
+  const [searchResults, setSearchResults] = useState<UserResult[]>([]);
+  const [selectedParticipant, setSelectedParticipant] = useState<UserResult | null>(null);
   const [searching, setSearching] = useState(false);
   const [activeFilterTab, setActiveFilterTab] = useState('all');
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -78,6 +84,7 @@ const Messages: React.FC = () => {
   const [isClosing, setIsClosing] = useState(false);
   const [actionConversationId, setActionConversationId] = useState<string | null>(null);
   
+
   const { 
     conversations, 
     loading: conversationsLoading, 
@@ -91,6 +98,15 @@ const Messages: React.FC = () => {
     refreshConversations,
     handleMessageUpdate // Add the new message update handler from useConversations
   } = useConversations();
+
+  // Memoize o handler de atualização de mensagem para não recriar a cada render
+  const handleChatViewMessageUpdate = useCallback(
+    (event: MessageUpdateEvent) => {
+      console.log("Message update from ChatView:", event);
+      handleMessageUpdate(event);
+    },
+    [handleMessageUpdate]
+  );
   
   React.useEffect(() => {
     // Ajuste de visualização para telas maiores
@@ -107,100 +123,49 @@ const Messages: React.FC = () => {
   }, []);
 
   // Estado para validação de formato de email
-  const [emailFormatValid, setEmailFormatValid] = useState<boolean>(true);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Improved email validation with increased debounce time
-  React.useEffect(() => {
-    // Removed local implementation of isCompleteEmail
-    setIsEmailValid(emailRegex.test(newParticipantEmail));
 
-    // Clear previous search results if email is invalid
-    if (!emailRegex.test(newParticipantEmail)) {
-      setSearching(false);
-      setIsSearchingUser(false);
-      setSearchResults([]);
-      return;
-    }
-    
-    // Cancel previous debounce if it exists
-    if (searchDebounce) {
-      clearTimeout(searchDebounce);
-    }
-    
-    // Only show searching indicator if email format is valid
-    if (emailRegex.test(newParticipantEmail)) {
-      setSearching(true);
-    }
-    
-    // Clear any existing timeout
-    if (searchDebounce) {
-      clearTimeout(searchDebounce);
-    }
+React.useEffect(() => {
+  // se formato inválido, limpa tudo
+  if (!emailRegex.test(newParticipantEmail)) {
+    setIsSearching(false);
+    setSearchResults([]);
+    setSelectedParticipant(null);
+    return;
+  }
 
-    // Troca por apenas regex
-    const formatValid = emailRegex.test(newParticipantEmail);
-    setEmailFormatValid(formatValid);
-    if (!formatValid) {
-      setSearchResults([]);
-      setSearching(false);
-      return;
-    }
-    
-    // If email is empty or format is invalid, don't proceed with search
-    if (!newParticipantEmail) {
-      setSearching(false);
-      setEmailFormatValid(true); // Reset validation when field is empty
-      return;
-    }
-    
-    if (!formatValid) {
-      // Give feedback for incomplete email without triggering search
-      console.log(`Email incompleto, aguardando formatação completa: ${newParticipantEmail}`);
-      setSearchResults([]);
-      setSearching(false);
-      return;
-    }
-    
-    // Only set searching state if email format is valid
-    setSearching(true);
-    setIsSearchingUser(true);
-
-    const timer = setTimeout(async () => {
-      try {
-        console.log(`Iniciando busca por email completo: ${newParticipantEmail}`);
-
-        // faz a busca
-        console.log("Calling findUserByEmail with:", newParticipantEmail); const user = await findUserByEmail(newParticipantEmail); console.log("findUserByEmail returned:", user);
-
-        if (user) { console.log("User found:", user);
-          setSearchResults([{
-            id: user.id,
-            email: user.email,
-            first_name: user.email.split('@')[0],
-            last_name: ''
-          }]);
-        } else { console.log("User not found");
-          setSearchResults([]);
+  setIsSearching(true);
+  const timer = setTimeout(async () => {
+    try {
+      const user = await findUserByEmail(newParticipantEmail);
+      if (user) {
+        const result: UserResult = {
+          id: user.id,
+          email: user.email
+        };
+        setSearchResults([result]);
+        // se for um email diferente, limpa seleção anterior
+        if (selectedParticipant?.email !== result.email) {
+          setSelectedParticipant(null);
         }
-      } catch (error) {
-        console.error('Erro ao buscar usuário:', error);
+      } else {
         setSearchResults([]);
-      } finally {
-        // sempre limpa ambos os estados de "buscando"
-        setSearching(false);
-        setIsSearchingUser(false);
+        setSelectedParticipant(null);
       }
-    }, 2000);
-    
-    setSearchDebounce(timer);
-    
-    return () => {
-      if (searchDebounce) {
-        clearTimeout(searchDebounce);
-      }
-    };
-  }, [newParticipantEmail, findUserByEmail, toast, lastSearchedEmail]);
-  
+    } catch {
+      setSearchResults([]);
+      setSelectedParticipant(null);
+    } finally {
+      setIsSearching(false);
+    }
+  }, 500);
+
+  return () => clearTimeout(timer);
+}, [newParticipantEmail, findUserByEmail]);
+
+
   
   const filteredConversations = conversations.filter((conversation) => {
     // Aplicar filtro de busca
@@ -218,10 +183,8 @@ const Messages: React.FC = () => {
       case 'unread':
         return matchesSearch && conversation.unread_count > 0;
       case 'favorites':
-        return matchesSearch
-          && conversation.participants.some(
-            p => p.id === user?.id && p.isFavorite
-          );
+        // por enquanto, exibe todos (ou adapte a um campo real que exista)
+        return matchesSearch;
       case 'groups':
         return matchesSearch && conversation.participants.length > 2;
       case 'all':
@@ -241,12 +204,17 @@ const Messages: React.FC = () => {
       .join(', ');
   };
   
-  const getlast_messagePreview = (conversation: typeof conversations[0]) => {
-    if (!conversation.last_message) return "Nenhuma mensagem";
-    return conversation.last_message.content.length > 30 
-      ? conversation.last_message.content.substring(0, 30) + "..." 
-      : conversation.last_message.content;
+  const getLastMessagePreview = (conversation: typeof conversations[0]) => {
+    // Pega o conteúdo — pode ser undefined ou null
+    const text = conversation.last_message?.content;
+    // Se não for string não vazia, mostra placeholder
+    if (typeof text !== 'string' || text.trim() === '') {
+      return "Nenhuma mensagem";
+    }
+    // Se for maior que 30 caracteres, corta e adiciona "..."
+    return text.length > 30 ? text.slice(0, 30) + "…" : text;
   };
+
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "";
@@ -281,51 +249,31 @@ const Messages: React.FC = () => {
     onSwipeLeft: handleSwipeLeft,
     onSwipeRight: handleSwipeRight,
   });
-
+  
   const handleCreateNewConversation = async () => {
-    if (!isEmailValid || searchResults.length === 0) {
+    if (!selectedParticipant) {
       toast({
         variant: "destructive",
-        title: "Usuário não encontrado",
-        description: "Não foi possível encontrar um usuário com esse email",
+        title: "Selecione um usuário",
+        description: "Clique em um dos resultados para iniciar."
       });
       return;
     }
-    
+
     try {
       setCreatingConversation(true);
-      
-      if (searchResults.length === 0) {
-        toast({
-          variant: "destructive",
-          title: "Usuário não encontrado",
-          description: "Não foi possível encontrar um usuário com esse email",
-        });
-        return;
-      }
-
-      // Get the participant ID from the search results
-      const participantId = searchResults[0].id;
-      
-      // Use the createConversation function from useConversations hook
-      const newId = await createConversation([participantId]);
-      
+      const newId = await createConversation([selectedParticipant.id]);
       toast({
         title: "Nova conversa",
-        description: `Conversa com ${newParticipantEmail} criada com sucesso!`,
+        description: `Conversa com ${selectedParticipant.email} criada com sucesso!`,
       });
-      
       setDialogOpen(false);
       setNewParticipantEmail('');
-      setLastSearchedEmail(''); // Reset last searched email
+      setSearchResults([]);
+      setSelectedParticipant(null);
       setSelectedConversationId(newId);
-      
-      if (window.innerWidth < 768) {
-        setShowSidebar(false);
-      }
-      
-    } catch (error) {
-      console.error("Erro ao criar conversa:", error);
+      if (window.innerWidth < 768) setShowSidebar(false);
+    } catch {
       toast({
         variant: "destructive",
         title: "Erro",
@@ -339,9 +287,9 @@ const Messages: React.FC = () => {
   const getInitials = (email: string) => {
     return email.substring(0, 2).toUpperCase();
   };
-  
-  // Estados para confirmação de exclusão
 
+
+  const handleCreate = handleCreateNewConversation;
   // Estados para confirmação de exclusão
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [conversationToDelete, setConversationToDelete] = useState<string | null>(null);
@@ -752,42 +700,47 @@ const Messages: React.FC = () => {
                     {searchResults.length > 0 && (
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Usuários encontrados</label>
-                        {searchResults.map((result) => (
-                          <div key={result.id} className="flex items-center p-2 bg-muted rounded-md">
+                        {searchResults.map(user => (
+                          <div
+                            key={user.id}
+                            className={`
+                              flex items-center p-2 rounded-md cursor-pointer
+                              ${selectedParticipant?.id === user.id ? 'bg-app-purple/20' : 'bg-muted'}
+                            `}
+                            onClick={() => setSelectedParticipant(user)}
+                          >
                             <Avatar className="h-8 w-8 mr-2">
-                              <AvatarFallback>{getInitials(result.email)}</AvatarFallback>
+                              <AvatarFallback>{user.email.slice(0,2).toUpperCase()}</AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
                               <p className="text-sm font-medium">
-                                {result.first_name && result.last_name 
-                                  ? `${result.first_name} ${result.last_name}`
-                                  : result.email}
+                                {user.email.split('@')[0]}
                               </p>
-                              <p className="text-xs text-muted-foreground">{result.email}</p>
+                              <p className="text-xs text-muted-foreground">{user.email}</p>
                             </div>
                           </div>
                         ))}
                       </div>
                     )}
+
                     
                     <DialogFooter>
-                      <Button 
+                      <Button
                         type="button"
                         onClick={handleCreateNewConversation}
-                        disabled={creatingConversation || !isEmailValid || isSearchingUser || searching}
+                        disabled={!selectedParticipant || creatingConversation}
                         className="w-full"
                       >
-                        {creatingConversation ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Criando...
-                          </>
-                        ) : (
-                          <>
-                            <MessageSquarePlus className="h-4 w-4 mr-2" />
-                            Iniciar Conversa
-                          </>
-                        )}
+                        {creatingConversation
+                          ? <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Criando...
+                            </>
+                          : <>
+                              <MessageSquarePlus className="h-4 w-4 mr-2" />
+                              Iniciar Conversa
+                            </>
+                        }
                       </Button>
                     </DialogFooter>
                   </div>
@@ -881,7 +834,7 @@ const Messages: React.FC = () => {
                             </div>
                             <div className="flex items-center">
                               <p className="text-sm text-muted-foreground truncate flex-1">
-                                {getlast_messagePreview(conversation)}
+                                {getLastMessagePreview(conversation)}
                               </p>
                               {conversation.unread_count > 0 && (
                                 <Badge variant="default" className="ml-2 bg-app-purple hover:bg-app-purple">
@@ -1069,13 +1022,9 @@ const Messages: React.FC = () => {
           
           {selectedConversationId ? (
             <div className="flex-1 overflow-hidden h-full w-full">
-              <ChatView 
-                conversationId={selectedConversationId} 
-                onMessageUpdate={(event: MessageUpdateEvent) => {
-                  console.log("Message update from ChatView:", event);
-                  // Forward the event to useConversations to update the sidebar
-                  handleMessageUpdate(event);
-                }} 
+              <ChatView
+                conversationId={selectedConversationId}
+                onMessageUpdate={handleChatViewMessageUpdate}
               />
             </div>
           ) : (

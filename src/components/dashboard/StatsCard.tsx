@@ -29,7 +29,7 @@ const StatsCard: React.FC<StatsCardProps> = ({
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
         </CardTitle>
-        <div className="h-8 w-8 rounded-md bg-app-purple/10 flex items-center justify-center text-app-purple">
+        <div className="h-8 w-8 rounded-md bg-app-yellow/10 flex items-center justify-center text-app-yellow">
           {icon}
         </div>
       </CardHeader>

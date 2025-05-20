@@ -92,20 +92,20 @@ const DeviceCard = ({
         deviceNameLower.includes('android') || 
         deviceNameLower.includes('celular') ||
         deviceNameLower.includes('mobile')) {
-      return <Smartphone className="w-10 h-10 text-app-purple" />;
+      return <Smartphone className="w-10 h-10 text-app-yellow" />;
     } else if (deviceNameLower.includes('ipad') || 
               deviceNameLower.includes('tablet')) {
-      return <Tablet className="w-10 h-10 text-app-purple" />;
+      return <Tablet className="w-10 h-10 text-app-yellow" />;
     } else if (deviceNameLower.includes('tv') || 
               deviceNameLower.includes('smart tv')) {
-      return <Monitor className="w-10 h-10 text-app-purple" />;
+      return <Monitor className="w-10 h-10 text-app-yellow" />;
     } else {
-      return <Laptop className="w-10 h-10 text-app-purple" />;
+      return <Laptop className="w-10 h-10 text-app-yellow" />;
     }
   };
 
   return (
-    <Card className={`mb-4 ${device.is_current_device ? 'border-app-purple bg-app-black' : 'bg-muted/5'}`}>
+    <Card className={`mb-4 ${device.is_current_device ? 'border-app-yellow bg-app-black' : 'bg-muted/5'}`}>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-3">
@@ -164,7 +164,7 @@ const DeviceCard = ({
                 </>
               ) : (
                 <>
-                  <MapPin className="h-3.5 w-3.5 mr-1 text-app-blue" />
+                  <MapPin className="h-3.5 w-3.5 mr-1 text-app-yellow" />
                   <p className="font-medium">{device.location || 'Localização desconhecida'}</p>
                 </>
               )}
@@ -181,7 +181,7 @@ const DeviceCard = ({
               </div>
             ) : (
               <div className="flex items-center">
-                <Globe className="h-3.5 w-3.5 mr-1 text-app-blue" />
+                <Globe className="h-3.5 w-3.5 mr-1 text-app-yellow" />
                 <p className="font-medium font-mono text-xs break-all">{device.ip_address || 'Desconhecido'}</p>
               </div>
             )}
@@ -190,8 +190,8 @@ const DeviceCard = ({
       </CardContent>
       {device.is_current_device && (
         <CardFooter className="pt-0 pb-4">
-          <Alert className="bg-app-purple/10 border-app-purple">
-            <Shield className="h-4 w-4 text-app-purple" />
+          <Alert className="bg-app-yellow/10 border-app-yellow">
+            <Shield className="h-4 w-4 text-app-yellow" />
             <AlertTitle className="text-xs ml-2">
               Este é seu dispositivo atual
             </AlertTitle>
@@ -424,10 +424,10 @@ export const ConnectedDevicesPage = () => {
         Visualize e gerencie os dispositivos que acessaram sua conta. Você pode revogar o acesso de dispositivos que não reconhece.
       </p>
       
-      <Alert variant="default" className="mb-6 bg-blue-950/20 border-blue-500/30">
-        <Info className="h-4 w-4 text-blue-400" />
-        <AlertTitle className="text-sm font-normal text-blue-300">Informação sobre dados de dispositivos</AlertTitle>
-        <AlertDescription className="text-xs text-blue-300/80">
+      <Alert variant="default" className="mb-6 bg-yellow-950/20 border-yellow-500/30">
+        <Info className="h-4 w-4 text-yellow-400" />
+        <AlertTitle className="text-sm font-normal text-yellow-300">Informação sobre dados de dispositivos</AlertTitle>
+        <AlertDescription className="text-xs text-yellow-300/80">
           Algumas informações como localização e endereço IP podem não estar disponíveis devido a ferramentas 
           de privacidade ou bloqueadores de rastreamento no seu navegador. Isso não afeta a segurança da sua conta.
         </AlertDescription>

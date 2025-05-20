@@ -78,12 +78,12 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
       <div
         className={cn(
           "flex p-3 cursor-pointer transition-all duration-300 ease-in-out",
-          isActive ? "bg-app-purple/10" : "hover:bg-app-background/50",
+          isActive ? "bg-app-yellow/10" : "hover:bg-app-background/50",
           { "translate-x-[-80px]": showActions }
         )}
       >
-        <div className="w-10 h-10 rounded-full bg-app-purple/20 flex items-center justify-center shrink-0">
-          <span className="text-app-purple font-medium">{displayName.charAt(0).toUpperCase()}</span>
+        <div className="w-10 h-10 rounded-full bg-app-yellow/20 flex items-center justify-center shrink-0">
+          <span className="text-app-yellow font-medium">{displayName.charAt(0).toUpperCase()}</span>
         </div>
         <div className="ml-3 flex-1 min-w-0">
           <div className="flex justify-between items-start">
@@ -102,7 +102,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
               {conversation.last_message || "Nenhuma mensagem"}
             </p>
             {hasUnread && (
-              <span className="ml-2 bg-app-purple text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="ml-2 bg-app-yellow text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {conversation.unread_count}
               </span>
             )}
@@ -117,7 +117,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
       <div className="absolute right-0 top-0 h-full flex items-center">
         <button 
           onClick={handleMarkAsRead} 
-          className="h-full w-10 bg-blue-500 flex items-center justify-center text-white"
+          className="h-full w-10 bg-yellow-500 flex items-center justify-center text-white"
           aria-label="Marcar como lido"
         >
           <Check size={16} />

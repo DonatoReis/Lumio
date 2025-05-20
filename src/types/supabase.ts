@@ -1186,28 +1186,27 @@ export type Database = {
       }
       user_conversation_preferences: {
         Row: {
-          conversation_id: string
-          created_at: string | null
-          id: string
-          is_archived: boolean | null
-          is_deleted: boolean | null
-          is_muted: boolean | null
-          is_pinned: boolean | null
-          messages_cleared_at: string | null
-          updated_at: string | null
-          user_id: string
+          id: string;
+          user_id: string;
+          conversation_id: string;
+          is_muted: boolean;
+          is_pinned: boolean;
+          is_archived: boolean;
+          is_deleted: boolean;
+          messages_cleared_at: string | null;
+          created_at: string;
+          updated_at: string;
         }
         Insert: {
-          conversation_id: string
-          created_at?: string | null
-          id?: string
-          is_archived?: boolean | null
-          is_deleted?: boolean | null
-          is_muted?: boolean | null
-          is_pinned?: boolean | null
-          messages_cleared_at?: string | null
-          updated_at?: string | null
-          user_id: string
+          user_id: string;
+          conversation_id: string;
+          is_muted?: boolean;
+          is_pinned?: boolean;
+          is_archived?: boolean;
+          is_deleted?: boolean;
+          messages_cleared_at?: string;
+          created_at?: string;
+          updated_at?: string;
         }
         Update: {
           conversation_id?: string

@@ -535,9 +535,9 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({
   return (
     <div className="flex flex-col items-center gap-3">
       <div className="relative group">
-        <Avatar className={`${sizeMap[size]} border-2 border-app-purple/30 ${!uploading ? 'group-hover:border-app-purple/50' : ''} transition-all`}>
+        <Avatar className={`${sizeMap[size]} border-2 border-app-yellow/30 ${!uploading ? 'group-hover:border-app-yellow/50' : ''} transition-all`}>
           <AvatarImage src={avatarUrl || ""} alt="User avatar" />
-          <AvatarFallback className="bg-app-purple/20 text-app-white text-xl">
+          <AvatarFallback className="bg-app-yellow/20 text-app-white text-xl">
             {getInitials()}
           </AvatarFallback>
         </Avatar>
@@ -578,7 +578,7 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({
               size="sm"
               onClick={handleButtonClick}
               disabled={uploading || connectionStatus === 'offline'}
-              className="mt-1 flex items-center border-dashed border-app-purple/50 hover:bg-app-purple/10 hover:border-app-purple"
+              className="mt-1 flex items-center border-dashed border-app-yellow/50 hover:bg-app-yellow/10 hover:border-app-yellow"
             >
               {connectionStatus === 'offline' ? (
                 <>

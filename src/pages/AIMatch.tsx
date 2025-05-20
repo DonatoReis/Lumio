@@ -76,7 +76,7 @@ const AIMatch = () => {
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-2 mb-6">
-          <Sparkles className="h-6 w-6 text-app-purple" />
+          <Sparkles className="h-6 w-6 text-app-yellow" />
           <h1 className="text-3xl font-bold">Match por IA</h1>
         </div>
         
@@ -207,7 +207,7 @@ const AIMatch = () => {
                                   size="sm"
                                   onClick={() => handleIndustrySelect(industry)}
                                   className={preferences.industries.includes(industry) 
-                                    ? "bg-app-purple hover:bg-app-purple/90" 
+                                    ? "bg-app-yellow hover:bg-app-yellow/90" 
                                     : ""}
                                 >
                                   {industry}
@@ -276,7 +276,7 @@ const AIMatch = () => {
                     <div className="space-y-4">
                       {loading ? (
                         <div className="flex flex-col items-center justify-center py-12">
-                          <Loader2 className="h-12 w-12 animate-spin text-app-purple mb-4" />
+                          <Loader2 className="h-12 w-12 animate-spin text-app-yellow mb-4" />
                           <p className="text-lg text-center">Nossa IA está analisando perfis e encontrando os melhores matches...</p>
                           <p className="text-sm text-muted-foreground text-center mt-2">
                             Isso pode levar alguns segundos
@@ -286,7 +286,7 @@ const AIMatch = () => {
                         <div>
                           <div className="flex items-center justify-between mb-4">
                             <h2 className="text-xl font-semibold flex items-center">
-                              <Sparkles className="mr-2 h-5 w-5 text-app-purple" />
+                              <Sparkles className="mr-2 h-5 w-5 text-app-yellow" />
                               Resultados da IA
                             </h2>
                             <div className="flex space-x-2">
@@ -329,7 +329,7 @@ const AIMatch = () => {
                   {activeTab === "profile" ? (
                     <Button 
                       onClick={handleSubmit} 
-                      className="w-full bg-app-purple hover:bg-app-purple/90"
+                      className="w-full bg-app-yellow hover:bg-app-yellow/90"
                       disabled={loading || !companyProfile.name}
                     >
                       {loading ? (
@@ -370,7 +370,7 @@ const AIMatch = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <div className="bg-app-purple/20 text-app-purple rounded-full p-2 mt-1">
+                    <div className="bg-app-yellow/20 text-app-yellow rounded-full p-2 mt-1">
                       <span className="font-semibold text-sm">1</span>
                     </div>
                     <div>
@@ -382,7 +382,7 @@ const AIMatch = () => {
                   </div>
                   
                   <div className="flex items-start gap-3">
-                    <div className="bg-app-purple/20 text-app-purple rounded-full p-2 mt-1">
+                    <div className="bg-app-yellow/20 text-app-yellow rounded-full p-2 mt-1">
                       <span className="font-semibold text-sm">2</span>
                     </div>
                     <div>
@@ -394,7 +394,7 @@ const AIMatch = () => {
                   </div>
                   
                   <div className="flex items-start gap-3">
-                    <div className="bg-app-purple/20 text-app-purple rounded-full p-2 mt-1">
+                    <div className="bg-app-yellow/20 text-app-yellow rounded-full p-2 mt-1">
                       <span className="font-semibold text-sm">3</span>
                     </div>
                     <div>
@@ -406,7 +406,7 @@ const AIMatch = () => {
                   </div>
                   
                   <div className="flex items-start gap-3">
-                    <div className="bg-app-purple/20 text-app-purple rounded-full p-2 mt-1">
+                    <div className="bg-app-yellow/20 text-app-yellow rounded-full p-2 mt-1">
                       <span className="font-semibold text-sm">4</span>
                     </div>
                     <div>

@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -68,18 +67,15 @@ export default {
 					white: 'rgb(241, 241, 241)',
 					black: 'rgb(26, 26, 26)',
 					background: 'rgb(23, 23, 23)',
-					purple: 'rgb(245, 212, 150)',
-					//purple: 'rgb(58, 43, 245)',
-					blue: 'rgb(245, 212, 150)',
-					//blue: 'rgb(43, 78, 255)',
-					yellow: 'rgb(223, 142, 73)',
+					yellow: 'rgb(245, 212, 150)',
+					orange: 'rgb(223, 142, 73)',
 					green: 'rgb(94, 255, 195)',
 					button: 'rgb(209, 209, 209)',
 					textoBotoes: 'rgb(26, 26, 26)'
 				}
 			},
 			fontFamily: {
-				sans: ['Inter', 'sans-serif'],
+				sans: ['Poppins', 'Inter', 'sans-serif'],
 				mono: ['JetBrains Mono', 'monospace']
 			},
 			borderRadius: {

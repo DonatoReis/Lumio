@@ -39,7 +39,7 @@ const SecurityPage: React.FC = () => {
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
-            <Shield className="h-7 w-7 text-app-purple mr-3" />
+            <Shield className="h-7 w-7 text-app-yellow mr-3" />
             <h1 className="text-2xl font-bold">Segurança & Privacidade</h1>
           </div>
           
@@ -50,7 +50,7 @@ const SecurityPage: React.FC = () => {
             <div className="flex items-center">
               <div className="h-2 w-24 bg-muted rounded-full mr-2 overflow-hidden">
                 <div 
-                  className="h-full bg-app-purple rounded-full"
+                  className="h-full bg-app-yellow rounded-full"
                   style={{ width: `${securityScore}%` }}
                 ></div>
               </div>

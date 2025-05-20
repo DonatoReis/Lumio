@@ -156,7 +156,7 @@ const TeamsPage: React.FC = () => {
                     <Button variant="outline" onClick={() => setShowNewTeamDialog(false)}>
                       Cancelar
                     </Button>
-                    <Button onClick={handleCreateTeam} className="bg-app-purple hover:bg-app-purple/90">
+                    <Button onClick={handleCreateTeam} className="bg-app-yellow hover:bg-app-yellow/90">
                       Criar Equipe
                     </Button>
                   </DialogFooter>
@@ -199,7 +199,7 @@ const TeamsPage: React.FC = () => {
                       selectedTeamId === team.id ? 'bg-accent' : 'hover:bg-accent/50'
                     }`}
                   >
-                    <div className="h-8 w-8 rounded-md bg-app-purple/20 flex items-center justify-center text-app-purple font-medium mr-3">
+                    <div className="h-8 w-8 rounded-md bg-app-yellow/20 flex items-center justify-center text-app-yellow font-medium mr-3">
                       {getInitials(team.name)}
                     </div>
                     <div className="truncate">{team.name}</div>
@@ -218,7 +218,7 @@ const TeamsPage: React.FC = () => {
             <p className="text-muted-foreground text-center max-w-md mb-6">
               Selecione uma equipe à esquerda para ver seus canais e conteúdo ou crie uma nova equipe para começar a colaborar.
             </p>
-            <Button onClick={() => setShowNewTeamDialog(true)} className="bg-app-purple hover:bg-app-purple/90">
+            <Button onClick={() => setShowNewTeamDialog(true)} className="bg-app-yellow hover:bg-app-yellow/90">
               <Plus className="h-4 w-4 mr-2" />
               Criar nova equipe
             </Button>
@@ -280,7 +280,7 @@ const TeamsPage: React.FC = () => {
                               id="private-channel"
                               checked={isPrivateChannel}
                               onChange={() => setIsPrivateChannel(!isPrivateChannel)}
-                              className="rounded border-gray-300 text-app-purple focus:ring-app-purple"
+                              className="rounded border-gray-300 text-app-yellow focus:ring-app-yellow"
                             />
                             <label htmlFor="private-channel" className="text-sm">
                               Canal privado
@@ -296,7 +296,7 @@ const TeamsPage: React.FC = () => {
                           <Button variant="outline" onClick={() => setShowNewChannelDialog(false)}>
                             Cancelar
                           </Button>
-                          <Button onClick={handleCreateChannel} className="bg-app-purple hover:bg-app-purple/90">
+                          <Button onClick={handleCreateChannel} className="bg-app-yellow hover:bg-app-yellow/90">
                             Criar Canal
                           </Button>
                         </DialogFooter>
@@ -372,7 +372,7 @@ const TeamsPage: React.FC = () => {
                 <p className="text-muted-foreground text-center max-w-md mb-6">
                   Selecione um canal à esquerda para ver seu conteúdo ou crie um novo canal para começar a compartilhar.
                 </p>
-                <Button onClick={() => setShowNewChannelDialog(true)} className="bg-app-purple hover:bg-app-purple/90">
+                <Button onClick={() => setShowNewChannelDialog(true)} className="bg-app-yellow hover:bg-app-yellow/90">
                   <Plus className="h-4 w-4 mr-2" />
                   Criar novo canal
                 </Button>
@@ -426,7 +426,7 @@ const TeamsPage: React.FC = () => {
                       <p className="text-muted-foreground max-w-md mx-auto mb-6">
                         Este canal está vazio. Comece compartilhando uma mensagem, um arquivo ou inicie uma conversa.
                       </p>
-                      <Button className="bg-app-purple hover:bg-app-purple/90">
+                      <Button className="bg-app-yellow hover:bg-app-yellow/90">
                         <Plus className="h-4 w-4 mr-2" />
                         Nova mensagem
                       </Button>
@@ -440,7 +440,7 @@ const TeamsPage: React.FC = () => {
                       <p className="text-muted-foreground max-w-md mx-auto mb-6">
                         Compartilhe arquivos como documentos, imagens ou links para colaborar com a equipe.
                       </p>
-                      <Button className="bg-app-purple hover:bg-app-purple/90">
+                      <Button className="bg-app-yellow hover:bg-app-yellow/90">
                         <Plus className="h-4 w-4 mr-2" />
                         Fazer upload de arquivo
                       </Button>

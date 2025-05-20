@@ -49,7 +49,7 @@ export function TwoFactorAuth({ onVerified, onCancel, email }: TwoFactorAuthProp
   return (
     <Card className="p-6 w-full max-w-md mx-auto">
       <div className="flex flex-col items-center mb-6">
-        <Shield className="h-12 w-12 text-app-purple mb-2" />
+        <Shield className="h-12 w-12 text-app-yellow mb-2" />
         <h1 className="text-2xl font-bold mb-1">Verificação em duas etapas</h1>
         <p className="text-muted-foreground text-center">
           Precisamos verificar sua identidade para continuar

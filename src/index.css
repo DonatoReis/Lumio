@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;200;300;400;500;600;700;800&display=swap');
 
@@ -66,11 +68,11 @@
 
 @layer components {
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-app-blue to-app-purple;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-app-yellow to-app-yellow;
   }
 
   .card-hover {
-    @apply transition-all duration-500 hover:shadow-md hover:shadow-app-purple/20;
+    @apply transition-all duration-500 hover:shadow-md hover:shadow-app-yellow/20;
   }
 
   .app-button {
@@ -78,7 +80,7 @@
   }
 
   .app-button-primary {
-    @apply bg-app-yellow text-app-textoBotoes hover:bg-app-yellow transition-colors duration-300 font-medium;
+    @apply bg-app-orange text-app-textoBotoes hover:bg-app-orange transition-colors duration-300 font-medium;
    }
 
   .sidebar-link-active {
@@ -120,7 +122,7 @@
   }
   
   .calendar-view-button.active {
-    @apply bg-app-purple text-white;
+    @apply bg-app-yellow text-white;
   }
   
   .calendar-grid {
@@ -128,15 +130,15 @@
   }
   
   .calendar-day {
-    @apply h-24 p-1 border border-gray-800 rounded-md transition-colors duration-200 hover:bg-app-purple/10;
+    @apply h-24 p-1 border border-gray-800 rounded-md transition-colors duration-200 hover:bg-app-yellow/10;
   }
   
   .calendar-day.today {
-    @apply border-app-purple;
+    @apply border-app-yellow;
   }
   
   .calendar-event {
-    @apply text-xs p-1 mb-1 rounded truncate bg-app-purple/20 text-white cursor-pointer hover:bg-app-purple/40 transition-colors;
+    @apply text-xs p-1 mb-1 rounded truncate bg-app-yellow/20 text-white cursor-pointer hover:bg-app-yellow/40 transition-colors;
   }
 }
 
@@ -182,7 +184,7 @@
 
 /* Estilos para equipes e canais */
 .team-card {
-  @apply bg-app-black p-4 rounded-lg border border-gray-800 hover:border-app-purple/50 transition-all duration-300;
+  @apply bg-app-black p-4 rounded-lg border border-gray-800 hover:border-app-yellow/50 transition-all duration-300;
 }
 
 .channel-list {
@@ -190,11 +192,11 @@
 }
 
 .channel-item {
-  @apply flex items-center p-2 rounded-md hover:bg-app-purple/10 transition-all duration-300;
+  @apply flex items-center p-2 rounded-md hover:bg-app-yellow/10 transition-all duration-300;
 }
 
 .channel-item.active {
-  @apply bg-app-purple/20;
+  @apply bg-app-yellow/20;
 }
 
 /* Estilos para mensagens seguras */

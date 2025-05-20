@@ -37,16 +37,16 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 }) => {
   return (
     <Link 
-      to={to} 
+      to={to}
       className={cn(
-        'sidebar-link relative mb-1 group flex items-center w-full',
+        'sidebar-link relative mb-1 group flex items-center w-full font-sans',
         isActive && 'sidebar-link-active'
       )}
     >
       <div className="flex items-center w-full">
         <span className={cn(
           "w-10 h-10 flex items-center justify-center",
-          isActive && 'text-app-purple'
+          isActive && 'text-app-yellow'
         )}>
           {icon}
         </span>
@@ -57,7 +57,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
         </span>
         
         {notification && notification > 0 && (
-          <span className="rounded-full bg-app-purple text-white text-xs px-2 py-0.5 min-w-[20px] text-center mr-2">
+          <span className="rounded-full bg-app-yellow text-white text-xs px-2 py-0.5 min-w-[20px] text-center mr-2">
             {notification}
           </span>
         )}

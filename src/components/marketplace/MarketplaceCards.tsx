@@ -218,14 +218,14 @@ const MarketplaceCards: React.FC<MarketplaceCardsProps> = ({
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="service" id="service" />
                     <Label htmlFor="service" className="flex items-center">
-                      <Briefcase className="h-4 w-4 mr-2 text-blue-500" />
+                      <Briefcase className="h-4 w-4 mr-2 text-yellow-500" />
                       Serviços
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="software" id="software" />
                     <Label htmlFor="software" className="flex items-center">
-                      <Code className="h-4 w-4 mr-2 text-purple-500" />
+                      <Code className="h-4 w-4 mr-2 text-yellow-500" />
                       Software
                     </Label>
                   </div>
